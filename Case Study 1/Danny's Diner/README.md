@@ -2,7 +2,8 @@
 ### 1st Case Study from the Course
 ![Danny's Diner](https://8weeksqlchallenge.com/images/case-study-designs/1.png)
 ## ER Diagram
-![ER Diagram] <img width="625" alt="Danny's Diner - ER Diagram" src="https://user-images.githubusercontent.com/93120413/147490759-c03d8538-0e5d-402a-87a9-f71206624f52.png">
+<img width="625" alt="Danny's Diner - ER Diagram" src="https://user-images.githubusercontent.com/93120413/147490759-c03d8538-0e5d-402a-87a9-f71206624f52.png">
+
 ##  Data Set
 ### Table 1: Sales
 The sales table captures all customer_id level purchases with an corresponding order_date and product_id information for when and what menu items were ordered.
@@ -22,3 +23,13 @@ The final members table captures the join_date when a customer_id joined the bet
 <img width="104" alt="Danny's Diner - Members Table" src="https://user-images.githubusercontent.com/93120413/147489723-a39ac29a-be0d-43cf-99c9-8b9eb76e0eba.png"> 
 
 ## Case Study Question and Answer
+1. What is the total amount each customer spent at the restaurant?
+   ```sql
+    SELECT
+    sales.customer_id AS customer_id,
+    SUM(menu.price) AS TotalAmount
+    FROM dannys_diner.menu
+    INNER JOIN dannys_diner.sales
+    ON menu.product_id = sales.product_id
+    GROUP BY customer_id
+    ORDER BY customer_id;
