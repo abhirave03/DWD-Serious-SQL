@@ -12,4 +12,4 @@ The menu table maps the product_id to the actual product_name and price of each 
 ![Menu Table] ("D:\Studies\NotePad++\Danny's Dinner\Danny's Diner - Sales Table.png")
 Table 3: Members
 ![Members Table] ("D:\Studies\NotePad++\Danny's Dinner\Danny's Diner - Members Table.png")
-
+## Case Study Question and Answer
