@@ -1,4 +1,4 @@
-# Data With Danny
+# Data With Danny - Serious SQL
 ### 8 Week Challenge
 I have learnt and completed the case studies from Danny Ma's Serious SQL challenge
 
