@@ -25,11 +25,14 @@ The final members table captures the join_date when a customer_id joined the bet
 ## Case Study Question and Answer
 1. What is the total amount each customer spent at the restaurant?
    ```sql
-    SELECT
-    sales.customer_id AS customer_id,
-    SUM(menu.price) AS TotalAmount
-    FROM dannys_diner.menu
-    INNER JOIN dannys_diner.sales
-    ON menu.product_id = sales.product_id
-    GROUP BY customer_id
-    ORDER BY customer_id;
+   SELECT 
+     sales.customer_id AS customer_id, 
+     Sum(menu.price) AS TotalAmount 
+   FROM dannys_diner.menu 
+   INNER JOIN dannys_diner.sales 
+   ON menu.product_id = sales.product_id 
+   GROUP BY 
+     customer_id 
+   ORDER BY 
+     customer_id;
+  
