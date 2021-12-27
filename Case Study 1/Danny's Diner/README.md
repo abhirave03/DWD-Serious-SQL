@@ -9,7 +9,7 @@ The sales table captures all customer_id level purchases with an corresponding o
 ![Sales Table] (<img width="153" alt="Danny's Diner - Sales Table" src="https://user-images.githubusercontent.com/93120413/147489705-829e945e-490a-498a-a22a-1af0a47a905a.png">)
 Table 2: Menu
 The menu table maps the product_id to the actual product_name and price of each menu item.
-![Menu Table] ("D:\Studies\NotePad++\Danny's Dinner\Danny's Diner - Sales Table.png")
+![Menu Table] (<img width="131" alt="Danny's Diner - Menu Table" src="https://user-images.githubusercontent.com/93120413/147489715-8a147e72-a2af-44b9-a248-0e739a073b6b.png">)
 Table 3: Members
-![Members Table] ("D:\Studies\NotePad++\Danny's Dinner\Danny's Diner - Members Table.png")
+![Members Table] (<img width="104" alt="Danny's Diner - Members Table" src="https://user-images.githubusercontent.com/93120413/147489723-a39ac29a-be0d-43cf-99c9-8b9eb76e0eba.png"> )
 ## Case Study Question and Answer
