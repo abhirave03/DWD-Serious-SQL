@@ -26,13 +26,148 @@ The final members table captures the join_date when a customer_id joined the bet
 1. What is the total amount each customer spent at the restaurant?
    ```sql
    SELECT 
-     sales.customer_id AS customer_id, 
-     Sum(menu.price) AS TotalAmount 
+      sales.customer_id AS customer_id, 
+      Sum(menu.price) AS TotalAmount 
    FROM dannys_diner.menu 
    INNER JOIN dannys_diner.sales 
    ON menu.product_id = sales.product_id 
+   GROUP BY customer_id 
+   ORDER BY customer_id;
+
+  #### Result
+   | customer_id    | totalamount   |
+   | -------------  |:-------------:|
+   |       A        |      76       | 
+   |       B        |      74       | 
+   |       C        |      36       | 
+
+2. How many days has each customer visited the restaurant?
+   ```sql
+   WITH CTE AS(
+   SELECT 
+      customer_id, 
+      order_date, 
+      count(*) AS Total 
+   FROM dannys_diner.sales 
+   GROUP BY customer_id, order_date 
+   ORDER BY customer_id
+   ) 
+   SELECT 
+      customer_id, 
+      count(total) AS TotalDays 
+   FROM CTE 
+   GROUP BY customer_id;
+
+  #### Result
+   | customer_id    | totaldays     |
+   | -------------  |:-------------:|
+   |       A        |       4       | 
+   |       B        |       6       | 
+   |       C        |       2       | 
+
+3. What was the first item from the menu purchased by each customer?
+   ```sql
+   WITH cte AS(
+   SELECT 
+      customer_id, 
+      RANK() OVER (PARTITION BY customer_id 
+      ORDER BY order_date
+    ) AS order_rank, 
+    menu.product_name 
+    FROM dannys_diner.sales 
+    INNER JOIN dannys_diner.menu 
+    ON sales.product_id = menu.product_id
+    ) 
+    SELECT 
+    DISTINCT product_name, customer_id 
+    FROM cte 
+    WHERE order_rank = 1;
+
+  #### Result
+   | product_id     | customer_id   |
+   | -------------  |:-------------:|
+   |     sushi      |       A       | 
+   |     curry      |       A       | 
+   |     curry      |       B       | 
+   |     ramen      |       C       | 
+   
+4. What is the most purchased item on the menu and how many times was it purchased by all customers?
+   ```sql
+   WITH CTE AS(
+   SELECT 
+      product_id, 
+      count(*) AS Total 
+   FROM dannys_diner.sales 
    GROUP BY 
-     customer_id 
-   ORDER BY 
-     customer_id;
-  
+      product_id
+   ) 
+   SELECT 
+      menu.product_name, Total 
+   FROM dannys_diner.menu 
+   INNER JOIN CTE 
+   ON menu.product_id = CTE.product_id 
+   ORDER BY Total DESC 
+   LIMIT 1;
+   
+  #### Result
+   | product_name   | total         |
+   | -------------  |:-------------:|
+   |     ramen      |       8       | 
+
+5. Which item was the most popular for each customer?
+   ```sql
+   WITH CTE AS(
+   SELECT 
+    sales.customer_id, 
+    sales.product_id, 
+    menu.product_name, 
+    rank() over( PARTITION BY sales.customer_id 
+    ORDER BY count(sales.product_id) desc
+    ) as rank_order 
+    FROM dannys_diner.sales 
+    INNER JOIN dannys_diner.menu ON sales.product_id = menu.product_id 
+    GROUP BY sales.customer_id, sales.product_id, menu.product_name 
+    ORDER BY sales.customer_id
+    ) 
+    SELECT 
+      customer_id, 
+      product_name 
+    FROM cte 
+    WHERE rank_order = 1;
+    
+ #### Result
+   | customert_id   | product_name  |
+   | -------------  |:-------------:|
+   |       A        |      ramen    | 
+   |       B        |      sushi    | 
+   |       B        |      ramen    | 
+   |       B        |      curry    | 
+   |       C        |      ramen    | 
+
+6. Which item was purchased first by the customer after they became a member?
+   ```sql
+   WITH CTE AS(
+   SELECT 
+      sales.customer_id, 
+      sales.product_id, 
+      sales.order_date, 
+      menu.product_name, 
+    DENSE_RANK() OVER(PARTITION BY sales.customer_id 
+    ORDER BY sales.order_date
+    ) AS rank_order 
+    FROM dannys_diner.sales 
+    INNER JOIN dannys_diner.members ON sales.customer_id = members.customer_id 
+    INNER JOIN dannys_diner.menu ON sales.product_id = menu.product_id 
+    WHERE sales.order_date >= members.join_date
+    ) 
+    SELECT 
+      customer_id, 
+      order_date, 
+      product_name 
+    FROM CTE 
+    where rank_order = 1;
+
+ #### Result
+   | customert_id   |  order_date   |  product_name   |
+   | -------------  |:-------------:|  -------------  |
+   |       A        |      ramen    |                 |
