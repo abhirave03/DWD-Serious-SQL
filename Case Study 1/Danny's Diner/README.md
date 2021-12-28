@@ -1,5 +1,4 @@
 # Case Study 1 - Danny's Diner
-### 1st Case Study from the Course
 ![Danny's Diner](https://8weeksqlchallenge.com/images/case-study-designs/1.png)
 ## ER Diagram
 <img width="625" alt="Danny's Diner - ER Diagram" src="https://user-images.githubusercontent.com/93120413/147490759-c03d8538-0e5d-402a-87a9-f71206624f52.png">
@@ -27,7 +26,7 @@ The final members table captures the join_date when a customer_id joined the bet
    ```sql
    SELECT 
       sales.customer_id AS customer_id, 
-      Sum(menu.price) AS TotalAmount 
+      SUM(menu.price) AS TotalAmount 
    FROM dannys_diner.menu 
    INNER JOIN dannys_diner.sales 
    ON menu.product_id = sales.product_id 
@@ -48,14 +47,14 @@ The final members table captures the join_date when a customer_id joined the bet
    SELECT 
       customer_id, 
       order_date, 
-      count(*) AS Total 
+      COUNT(*) AS Total 
    FROM dannys_diner.sales 
    GROUP BY customer_id, order_date 
    ORDER BY customer_id
    ) 
    SELECT 
       customer_id, 
-      count(total) AS TotalDays 
+      COUNT(total) AS TotalDays 
    FROM CTE 
    GROUP BY customer_id;
    ```
@@ -123,9 +122,9 @@ The final members table captures the join_date when a customer_id joined the bet
       sales.customer_id, 
       sales.product_id, 
       menu.product_name, 
-      rank() over( PARTITION BY sales.customer_id 
+      RANK() over( PARTITION BY sales.customer_id 
       ORDER BY count(sales.product_id) desc
-   ) as rank_order 
+   ) AS rank_order 
    FROM dannys_diner.sales 
    INNER JOIN dannys_diner.menu ON sales.product_id = menu.product_id 
    GROUP BY sales.customer_id, sales.product_id, menu.product_name 
@@ -228,8 +227,8 @@ The final members table captures the join_date when a customer_id joined the bet
    ) 
    SELECT 
       customer_id, 
-      count(DISTINCT product_id), 
-      sum(price) 
+      COUNT(DISTINCT product_id), 
+      SUM(price) 
    FROM CTE 
    GROUP BY customer_id 
    ORDER BY customer_id;
@@ -257,7 +256,7 @@ The final members table captures the join_date when a customer_id joined the bet
    ) 
    SELECT 
       customer_id, 
-      sum(product_result) AS points 
+      SUM(product_result) AS points 
    FROM CTE 
    GROUP BY customer_id 
    ORDER BY customer_id;
@@ -294,7 +293,7 @@ The final members table captures the join_date when a customer_id joined the bet
    )
    SELECT
       customer_id,
-      sum(product_result) AS Result
+      SUM(product_result) AS Result
    FROM CTE
    GROUP BY customer_id
    ORDER BY customer_id;
@@ -324,7 +323,7 @@ The final members table captures the join_date when a customer_id joined the bet
    )
    SELECT
       customer_id,
-      sum(product_result1) AS Result1
+      SUM(product_result1) AS Result1
    FROM CTE1
    GROUP BY customer_id
    ORDER BY customer_id;
@@ -338,7 +337,7 @@ The final members table captures the join_date when a customer_id joined the bet
    SELECT
       dinner.customer_id,
       dinner1.customer_id,
-      sum(Result + Result1)
+      SUM(Result + Result1)
    FROM dinner
    JOIN dinner1
    ON dinner.customer_id = dinner1.customer_id
@@ -374,15 +373,73 @@ The final members table captures the join_date when a customer_id joined the bet
    |:--------------:|:--------------:|:--------------:|:--------------:|:--------------:|
    |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
    |        A       |       2        |   2021-01-01   |   2021-01-07   |       N        |
-   |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-   |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-       |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-        |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-         |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-          |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-           |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-            |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-             |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
-              |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |
+   |        A       |       2        |   2021-01-07   |   2021-01-07   |       Y        |
+   |        A       |       3        |   2021-01-10   |   2021-01-07   |       Y        |
+   |        A       |       3        |   2021-01-11   |   2021-01-07   |       Y        |
+   |        A       |       3        |   2021-01-11   |   2021-01-07   |       Y        |
+   |        B       |       2        |   2021-01-01   |   2021-01-09   |       N        |
+   |        B       |       2        |   2021-01-02   |   2021-01-09   |       N        |
+   |        B       |       1        |   2021-01-04   |   2021-01-09   |       N        |
+   |        B       |       1        |   2021-01-11   |   2021-01-09   |       Y        |
+   |        B       |       3        |   2021-01-16   |   2021-01-09   |       Y        |
+   |        B       |       3        |   2021-02-01   |   2021-01-09   |       Y        |
+   |        C       |       3        |   2021-01-01   |       null     |       N        |
+   |        C       |       3        |   2021-01-01   |       null     |       N        |
+   |        C       |       3        |   2021-02-07   |       null     |       N        |
              
-   
+#### 12.Danny also requires further information about the ranking of customer products, but he purposely does not need the ranking for non-member purchases so he expects null ranking values for the records when customers are not yet part of the loyalty program.
+   ```sql
+   DROP TABLE IF EXISTS purchases;
+   CREATE TEMP TABLE purchases AS
+   WITH CTE AS(
+   SELECT
+      sales.customer_id,
+      sales.product_id,
+      sales.order_date,
+      members.join_date,
+      CASE
+         WHEN sales.order_date >= members.join_date THEN 'Y'
+         ELSE 'N'
+      END AS member
+   FROM dannys_diner.sales
+   FULL JOIN dannys_diner.members
+   ON sales.customer_id = members.customer_id)
+   SELECT
+      customer_id,
+      product_id,
+      order_date,
+      join_date,
+      member,
+      RANK() OVER (PARTITION BY customer_id ORDER BY member) AS ranked
+   FROM CTE;
+   ```
+   ```sql
+   SELECT customer_id,
+      product_id,
+      order_date,
+      join_date,
+      member,
+      CASE WHEN 
+         ranked = 1 THEN null 
+         ELSE  DENSE_RANK() OVER (PARTITION BY customer_id, member ORDER BY order_date)
+      END AS ranked1
+   FROM purchases;
+   ```
+#### Result
+   | customert_id   | product_id     | order_date     | join_date      |  member        |  ranked1       |
+   |:--------------:|:--------------:|:--------------:|:--------------:|:--------------:|:--------------:|
+   |        A       |       1        |   2021-01-01   |   2021-01-07   |       N        |       null     |
+   |        A       |       2        |   2021-01-01   |   2021-01-07   |       N        |       null     |
+   |        A       |       2        |   2021-01-07   |   2021-01-07   |       Y        |        1       |
+   |        A       |       3        |   2021-01-10   |   2021-01-07   |       Y        |        2       |
+   |        A       |       3        |   2021-01-11   |   2021-01-07   |       Y        |        3       |
+   |        A       |       3        |   2021-01-11   |   2021-01-07   |       Y        |        3       |
+   |        B       |       2        |   2021-01-01   |   2021-01-09   |       N        |       null     |
+   |        B       |       2        |   2021-01-02   |   2021-01-09   |       N        |       null     |
+   |        B       |       1        |   2021-01-04   |   2021-01-09   |       N        |       null     |
+   |        B       |       1        |   2021-01-11   |   2021-01-09   |       Y        |        1       |
+   |        B       |       3        |   2021-01-16   |   2021-01-09   |       Y        |        2       |
+   |        B       |       3        |   2021-02-01   |   2021-01-09   |       Y        |        3       |
+   |        C       |       3        |   2021-01-01   |       null     |       N        |       null     |
+   |        C       |       3        |   2021-01-01   |       null     |       N        |       null     |
+   |        C       |       3        |   2021-02-07   |       null     |       N        |       null     |
