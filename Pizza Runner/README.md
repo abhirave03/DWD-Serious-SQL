@@ -906,55 +906,202 @@ This table contains all of the topping_name values with their corresponding topp
 #### 2. What if there was an additional $1 charge for any pizza extras? Add cheese is $1 extra
   ```sql
   DROP TABLE IF EXISTS table1;
-    CREATE TEMP TABLE table1 AS 
-    WITH CTE AS(
-    SELECT 
+  CREATE TEMP TABLE table1 AS 
+  WITH CTE AS(
+  SELECT 
     order_id,
     customer_id,
     pizza_id,
     REGEXP_SPLIT_TO_TABLE(extras, '[,\s]+') AS topping_id
-    FROM pizza_runner.customer_orders
-    )
-    SELECT
+  FROM pizza_runner.customer_orders
+  )
+  SELECT
     order_id,
     customer_id,
     pizza_id,
     topping_id
-    FROM CTE;
-    
-    DROP TABLE IF EXISTS table2;
-    CREATE TEMP TABLE table2 AS
-    WITH cte_cleaned_customer_orders AS (
-    SELECT
+  FROM CTE;
+  ```
+  
+  ```sql
+  DROP TABLE IF EXISTS table2;
+  CREATE TEMP TABLE table2 AS
+  WITH cte_cleaned_customer_orders AS (
+  SELECT
     order_id,
     customer_id,
     pizza_id,
     topping_id,
-    CASE WHEN topping_id IN ('', 'null') THEN NULL ELSE topping_id END AS extras
-    FROM table1
-    )
-    SELECT
+    CASE 
+      WHEN topping_id IN ('', 'null') THEN NULL ELSE topping_id END AS extras
+  FROM table1
+  )
+  SELECT
     order_id,
     SUM(CASE WHEN extras not IN ('null') THEN 1 ELSE 0 END)
     AS toppings
-    FROM cte_cleaned_customer_orders
-    GROUP BY order_id;
-    
-    SELECT * FROM table2;
-    
-    DROP TABLE IF EXISTS table3;
-    CREATE TEMP TABLE table3 AS
-    SELECT
+  FROM cte_cleaned_customer_orders
+  GROUP BY order_id;
+  ```
+  
+  ```sql    
+  DROP TABLE IF EXISTS table3;
+  CREATE TEMP TABLE table3 AS
+  SELECT
     order_id,
     count(*),
     SUM(
-    CASE WHEN pizza_id = 1 THEN 12 ELSE 10 END) AS Revenue
-    FROM pizza_runner.customer_orders
-    group by order_id
-    ORDER BY order_id;
-    
-    SELECT
+    CASE 
+      WHEN pizza_id = 1 THEN 12 ELSE 10 END) AS Revenue
+  FROM pizza_runner.customer_orders
+  GROUP BY order_id
+  ORDER BY order_id;
+  ```
+  
+  ```sql
+  SELECT
     SUM (Revenue + toppings) AS Price
-    FROM table2
-    INNER JOIN table3
-    ON table2.order_id = table3.order_id;
+  FROM table2
+  INNER JOIN table3
+  ON table2.order_id = table3.order_id;
+  ```
+  
+#### Result
+   |       price    | 
+   |:--------------:|
+   |       166      |
+   
+#### 3. The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, how would you design an additional table for this new dataset - generate a schema for this new table and insert your own data for ratings for each successful customer order between 1 to 5.
+  ```sql
+  DROP TABLE IF EXISTS pizza_runner.ratings;
+  CREATE TABLE pizza_runner.ratings (
+    "order_id" INTEGER,
+    "rating" INTEGER
+  );
+    
+  INSERT INTO pizza_runner.ratings
+  SELECT
+    order_id,
+    (random() * (1-5+1)+5)::int AS rating --May use Random/Ceiling before random
+  FROM pizza_runner.runner_orders
+  WHERE pickup_time IS NOT NULL;
+    
+  SELECT * FROM pizza_runner.ratings;
+  ```
+  
+#### Result
+   |    order_id    |     rating     | 
+   |:--------------:|:--------------:|
+   |       1        |        3       |
+   |       2        |        4       |
+   |       3        |        2       |
+   |       4        |        4       |
+   |       6        |        3       |
+   |       7        |        2       |
+   |       8        |        4       |
+   |       9        |        4       |
+   |      10        |        3       |
+   |       2        |        3       |
+   
+#### 5. Using your newly generated table - can you join all of the information together to form a table which has the following information for successful deliveries?
+  ```sql
+  WITH CTE AS(
+  SELECT
+    runner_orders.runner_id,
+    runner_orders.order_id,
+    customer_orders.customer_id,
+    ratings.rating,
+    customer_orders.order_time,
+    runner_orders.pickup_time,
+    AGE(runner_orders.pickup_time::TIMESTAMP, customer_orders.order_time)AS pickup_minutes,
+    UNNEST(REGEXP_MATCH(runner_orders.distance, '(^[0-9,.]+)')) ::NUMERIC AS distance1,
+    UNNEST(REGEXP_MATCH(runner_orders.duration, '(^[0-9,.]+)')) ::NUMERIC AS duration1
+  FROM pizza_runner.customer_orders
+  INNER JOIN pizza_runner.runner_orders
+  ON customer_orders.order_id = runner_orders.order_id
+  INNER JOIN pizza_runner.ratings
+  ON customer_orders.order_id = ratings.order_id
+  )
+  SELECT
+    order_id,
+    runner_id,
+    rating,
+    order_time,
+    pickup_time,
+    DATE_PART('Minutes',pickup_minutes) AS diff_time,
+    Round(distance1/(duration1/60),1) AS avg_speed,
+    count(order_id) AS pizza_count
+  FROM CTE
+  GROUP BY order_id, runner_id, rating, order_time, pickup_time, diff_time, avg_speed
+  ORDER BY order_id;
+  ```
+ 
+ #### Result
+   |    order_id    |    runner_id   |      rating    |        order_time       |      pickup_time    |     diff_time     |  avg_speed   |     pizza_count   | 
+   |:--------------:|:--------------:|:--------------:|:-----------------------:|:-------------------:|:-----------------:|:------------:|:-----------------:|
+   |        1       |       1        |        3       | 2021-01-01 18:05:02.000 | 2021-01-01 18:15:34 |         10        |     37.5     |          1        |
+   |        2       |       1        |        4       | 2021-01-01 19:00:52.000 | 2021-01-01 19:10:54 |         10        |     44.4     |          1        |
+   |        3       |       1        |        2       | 2021-01-02 23:51:23.000 | 2021-01-03 00:12:37 |         21        |     40.2     |          2        |
+   |        4       |       2        |        4       | 2021-01-04 13:23:46.000 | 2021-01-04 13:53:03 |         29        |     35.1     |          3        |
+   |        5       |       3        |        3       | 2021-01-08 21:00:29.000 | 2021-01-08 21:10:57 |         10        |     40.0     |          1        |
+   |        7       |       2        |        4       | 2021-01-08 21:20:29.000 | 2021-01-08 21:30:45 |         10        |     60.0     |          1        |
+   |        8       |       2        |        4       | 2021-01-09 23:54:33.000 | 2021-01-10 00:15:02 |         20        |     93.6     |          1        |
+   |       10       |       1        |        3       | 2021-01-11 18:34:49.000 | 2021-01-11 18:50:20 |         15        |     60.0     |          2        |
+   
+ #### 5. If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?
+  ```sql
+  WITH CTE AS(
+  SELECT
+    runner_orders.runner_id,
+    runner_orders.order_id,
+    CASE 
+      WHEN pizza_id = 1 THEN 12 ELSE 10 END AS Price,
+    UNNEST(REGEXP_MATCH(runner_orders.distance, '(^[0-9,.]+)'))::NUMERIC AS distance1
+  FROM pizza_runner.customer_orders
+  INNER JOIN pizza_runner.runner_orders
+  ON customer_orders.order_id = runner_orders.order_id
+  INNER JOIN pizza_runner.ratings
+  ON customer_orders.order_id = ratings.order_id
+  WHERE pickup_time IS NOT NULL
+  )
+  SELECT
+  SUM(price-round((distance1*0.30),2)) AS leftoverrevenue
+  FROM CTE;
+  ```
+
+#### Result
+   |  leftoverrevenue  | 
+   |:-----------------:|
+   |        73.38      |
+
+## E. Bonus Questions
+#### 1. If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an INSERT statement to demonstrate what would happen if a new Supreme pizza with all the toppings was added to the Pizza Runner menu?
+  ```sql
+  DROP TABLE IF EXISTS temp_pizza;
+  CREATE TEMP TABLE temp_pizza AS
+  SELECT * FROM pizza_runner.pizza_names;
+
+  INSERT INTO temp_pizza 
+  VALUES (3, 'Supreme');
+    
+  SELECT * FROM temp_pizza;
+    
+  DROP TABLE IF EXISTS temp_pizza_recipes;
+  CREATE TEMP TABLE temp_pizza_recipes AS
+  SELECT * FROM pizza_runner.pizza_recipes;
+
+  INSERT INTO temp_pizza_recipes
+  SELECT 3,
+  STRING_AGG(topping_id::VARCHAR,',')
+  FROM pizza_runner.pizza_toppings;
+    
+  SELECT * FROM temp_pizza_recipes;
+  ```
+ 
+#### Result 
+   |    pizza_id    |           toppings           | 
+   |:--------------:|:----------------------------:|
+   |        1       |    1, 2, 3, 4, 5, 6, 8, 10   |
+   |        1       |      4, 6, 7, 9, 11, 12      | 
+   |        1       |  1,2,3,4,5,6,7,8,9,10,11,12  |
+   
