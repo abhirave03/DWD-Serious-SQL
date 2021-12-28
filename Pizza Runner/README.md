@@ -43,32 +43,32 @@ This table contains all of the topping_name values with their corresponding topp
 #### 1. How many pizzas were ordered?
   ```sql
    SELECT 
-      count(*) 
+      COUNT(*) AS pizzaorder
    FROM pizza_runner.customer_orders;
    ```
    
 #### Result
-   | count          | 
+   | pizzaorder     | 
    |:--------------:|
    |       14       |
    
 #### 2. How many unique customer orders were made?
   ```sql
   SELECT
-    count(DISTINCT order_id)
+    COUNT(DISTINCT order_id) AS uniquepizzaorder
   FROM pizza_runner.customer_orders;
   ```
   
 #### Result
-   | count          | 
-   |:--------------:|
-   |       10       |
+   |  uniquepizzaorder  | 
+   |:------------------:|
+   |         10         |
    
 #### 3. How many successful orders were delivered by each runner?
   ```sql
   SELECT
     runner_id, 
-    count(order_id) as delivery_order
+    COUNT(order_id) AS delivery_order
   FROM pizza_runner.runner_orders
   WHERE cancellation IS NULL or cancellation not in ('Restaurant Cancellation', 'Customer Cancellation')
   GROUP BY runner_id
@@ -92,8 +92,8 @@ This table contains all of the topping_name values with their corresponding topp
   ON customer_orders.order_id = runner_orders.order_id
   )
   SELECT
-    SUM (CASE WHEN  pizza_id = 1 THEN 1 ELSE 0 END) AS MeatLover,
-    SUM (CASE WHEN  pizza_id = 2 THEN 1 ELSE 0 END) AS VegLover
+    SUM(CASE WHEN  pizza_id = 1 THEN 1 ELSE 0 END) AS MeatLover,
+    SUM(CASE WHEN  pizza_id = 2 THEN 1 ELSE 0 END) AS VegLover
   FROM CTE 
   WHERE cancellation IS NULL or cancellation not in ('Restaurant Cancellation', 'Customer Cancellation');  
   ```
@@ -107,8 +107,8 @@ This table contains all of the topping_name values with their corresponding topp
   ```sql
   SELECT
     customer_id,
-    SUM (CASE WHEN pizza_id = 1 THEN 1 ELSE 0 END) AS MeatLover,
-    SUM (CASE WHEN pizza_id = 2 THEN 1 ELSE 0 END) AS VegLover 
+    SUM(CASE WHEN pizza_id = 1 THEN 1 ELSE 0 END) AS MeatLover,
+    SUM(CASE WHEN pizza_id = 2 THEN 1 ELSE 0 END) AS VegLover 
   FROM pizza_runner.customer_orders
   GROUP BY customer_id	
   ORDER BY customer_id;
@@ -142,13 +142,13 @@ This table contains all of the topping_name values with their corresponding topp
   WITH CTE1 AS(
   SELECT 
     order_id,customer_id,
-    count(order_id) AS Total
+    COUNT(order_id) AS Total
   FROM CTE
   GROUP BY order_id, customer_id
   ORDER BY order_id
   )
   SELECT
-    max(Total) AS MaxDelivery
+    MAX(Total) AS MaxDelivery
   FROM CTE1;
   ```
 
@@ -209,13 +209,13 @@ This table contains all of the topping_name values with their corresponding topp
   FROM pizza_runner.customer_orders
   )
   SELECT 
-    count(*)
+    COUNT(*) AS deliveredpizza
   FROM CTE 
   WHERE exclusions IS NOT NULL and extras IS NOT NULL;
   ```
   
 #### Result
-   |      count     | 
+   | deliveredpizza | 
    |:--------------:|
    |        2       |
 
@@ -228,14 +228,14 @@ This table contains all of the topping_name values with their corresponding topp
   )
   SELECT
     OrderTime,
-    count(*)
+    COUNT(*) AS orderperhour
   FROM CTE 
   GROUP BY OrderTime
   ORDER BY OrderTime ASC;
   ```
 
 #### Result
-   |order_time      | count          | 
+   |order_time      |  orderperhour  | 
    |:--------------:|:--------------:|
    |        11      |        1       |
    |        13      |        3       |
@@ -254,7 +254,7 @@ This table contains all of the topping_name values with their corresponding topp
   )
   SELECT
     Days,
-    count(*) AS Total
+    COUNT(*) AS Total
   FROM CTE
   GROUP BY Days 
   ORDER BY Total;
@@ -273,14 +273,14 @@ This table contains all of the topping_name values with their corresponding topp
   ```sql
   SELECT
     DATE_TRUNC('Week', registration_date) + INTERVAL '3 Days' AS registration,
-    count(*)
+    COUNT(*) AS signedrunner
   FROM pizza_runner.runners
   GROUP BY registration 
   ORDER BY registration;
   ```
   
 #### Result
-   |registration    | count          | 
+   |registration    |  signedrunner  | 
    |:--------------:|:--------------:|
    |   2020-12-31   |        2       |
    |   2021-01-07   |        1       |
@@ -313,7 +313,7 @@ This table contains all of the topping_name values with their corresponding topp
   FROM CTE1
   )
   SELECT
-    avg(Total) AS average
+    AVG(Total) AS average
   FROM CTE;
   ```
   
@@ -339,7 +339,7 @@ This table contains all of the topping_name values with their corresponding topp
   SELECT
     order_id,
     DATE_PART('Minutes', pickup_minutes),
-    count(order_id) AS PizzaCount
+    COUNT(order_id) AS PizzaCount
   FROM CTE
   GROUP BY order_id, pickup_minutes
   ORDER BY order_id, PizzaCount;
@@ -373,7 +373,7 @@ This table contains all of the topping_name values with their corresponding topp
   )
   SELECT
     customer_id,
-    round(avg(distance1),1) AS average
+    ROUND(AVG(distance1),1) AS average
   FROM CTE
   GROUP BY customer_id
   ORDER BY customer_id;
@@ -398,7 +398,7 @@ This table contains all of the topping_name values with their corresponding topp
   WHERE runner_orders.distance != 'null'
   )
   SELECT
-    max(duration1)-min(duration1) AS max_diff
+    MAX(duration1)-min(duration1) AS max_diff
   FROM CTE;
   ```
 
@@ -426,7 +426,7 @@ This table contains all of the topping_name values with their corresponding topp
     Hour_of_Day,
     distance1,
     duration1,
-    Round(distance1/(duration1/60)) AS Speed
+    ROUND(distance1/(duration1/60)) AS Speed
   FROM CTE;
   ```
 
@@ -489,7 +489,7 @@ This table contains all of the topping_name values with their corresponding topp
   CREATE TEMP TABLE NEWW1 AS
   SELECT 
     pizza_id,
-    string_agg(NEWW.topping_name, ',') as topping_id
+    STRING_AGG(NEWW.topping_name, ',') as topping_id
   FROM NEWW
   GROUP BY pizza_id;
   ```
@@ -524,8 +524,8 @@ This table contains all of the topping_name values with their corresponding topp
   ```sql
   SELECT 
     NEW1.topping_id,
-    count(NEW1.topping_id) AS common_extras,
-    pizza_toppings.	topping_name AS Toppings_names
+    COUNT(NEW1.topping_id) AS common_extras,
+    pizza_toppings.topping_name AS Toppings_names
   FROM NEW1
   INNER JOIN pizza_runner.pizza_toppings
   ON NEW1.topping_id = pizza_toppings.topping_id
@@ -565,8 +565,8 @@ This table contains all of the topping_name values with their corresponding topp
   ```sql
   SELECT 
     NEW2.topping_id,
-    count(NEW2.topping_id) AS common_extras,
-    pizza_toppings.	topping_name AS Toppings_names
+    COUNT(NEW2.topping_id) AS common_extras,
+    pizza_toppings.topping_name AS Toppings_names
   FROM NEW2
   INNER JOIN pizza_runner.pizza_toppings
   ON NEW2.topping_id = pizza_toppings.topping_id
@@ -949,7 +949,7 @@ This table contains all of the topping_name values with their corresponding topp
   CREATE TEMP TABLE table3 AS
   SELECT
     order_id,
-    count(*),
+    COUNT(*),
     SUM(
     CASE 
       WHEN pizza_id = 1 THEN 12 ELSE 10 END) AS Revenue
@@ -982,7 +982,7 @@ This table contains all of the topping_name values with their corresponding topp
   INSERT INTO pizza_runner.ratings
   SELECT
     order_id,
-    (random() * (1-5+1)+5)::int AS rating --May use Random/Ceiling before random
+    (RANDOM() * (1-5+1)+5)::int AS rating --May use Random/Ceiling before random
   FROM pizza_runner.runner_orders
   WHERE pickup_time IS NOT NULL;
     
@@ -1029,8 +1029,8 @@ This table contains all of the topping_name values with their corresponding topp
     order_time,
     pickup_time,
     DATE_PART('Minutes',pickup_minutes) AS diff_time,
-    Round(distance1/(duration1/60),1) AS avg_speed,
-    count(order_id) AS pizza_count
+    ROUND(distance1/(duration1/60),1) AS avg_speed,
+    COUNT(order_id) AS pizza_count
   FROM CTE
   GROUP BY order_id, runner_id, rating, order_time, pickup_time, diff_time, avg_speed
   ORDER BY order_id;
