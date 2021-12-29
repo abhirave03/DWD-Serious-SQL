@@ -20,3 +20,233 @@
 - When customers churn - they will keep their access until the end of their current billing period but the start_date will be technically the day they decided to cancel their service.
 
 <img width="92" alt="Foodie Fi - Subscriptions" src="https://user-images.githubusercontent.com/93120413/147627289-79839ae8-0687-4750-8b0e-5a3a5f1872e2.png">
+
+## Case Study Question and Answer
+### A. Customer Journey
+#### 1. Based off the 8 sample customers provided in the sample from the subscriptions table, write a brief description about each customer’s onboarding journey.
+  ```sql
+  SELECT * 
+  FROM foodie_fi.subscriptions
+  INNER JOIN foodie_fi.plans
+  ON plans.plan_id = subscriptions.plan_id
+  WHERE customer_id IN (1, 2, 13, 15, 16, 18, 19, 25, 39, 42)
+  ORDER BY customer_id;
+  ```
+
+#### Result
+   | customer_id    | plan_id        | start_date     | plan_name      | price          |
+   |:--------------:|:--------------:|:--------------:|:--------------:|:--------------:|
+   |      1         |       0        |   2020-08-01   |     trial      |    0.00        |
+   |      1         |       0        |   2020-08-08   |  basic monthly |    9.90        |
+   |      2         |       0        |   2020-09-20   |     trial      |    0.00        |
+   |      2         |       3        |   2020-09-27   |  pro annual    |   199.0        |
+   |     13         |       0        |   2020-12-15   |     trial      |    0.00        |
+   |     13         |       1        |   2020-12-22   |  basic monthly |    9.90        |
+   |     13         |       2        |   2021-03-29   |   pro monthly  |   19.90        |
+   |     15         |       0        |   2020-03-17   |     trial      |    0.00        |
+   |     15         |       2        |   2020-03-24   |   pro monthly  |   19.90        |
+   |     15         |       4        |   2020-04-29   |     churn      |    null        |
+   |     16         |       0        |   2020-05-31   |     trial      |    0.00        |
+   |     16         |       1        |   2020-06-07   |  basic monthly |    9.90        |
+   |     16         |       3        |   2020-10-21   |  pro annual    |   199.0        |
+   |     18         |       0        |   2020-07-06   |     trial      |    0.00        |
+   |     18         |       2        |   2020-07-13   |  basic monthly |    9.90        |
+   |     19         |       0        |   2020-06-22   |     trial      |    0.00        |
+   |     19         |       2        |   2020-06-29   |  basic monthly |    9.90        |
+   |     19         |       3        |   2020-08-29   |  pro annual    |   199.0        |
+   |     25         |       0        |   2020-05-10   |     trial      |    0.00        |
+   |     25         |       1        |   2020-05-17   |  basic monthly |    9.90        |
+   |     25         |       2        |   2020-06-16   |   pro monthly  |   19.90        |
+   |     39         |       0        |   2020-05-28   |     trial      |    0.00        |
+   |     39         |       1        |   2020-06-04   |  basic monthly |    9.90        |
+   |     39         |       2        |   2020-08-25   |   pro monthly  |   19.90        |
+   |     39         |       4        |   2020-09-10   |     churn      |    null        |
+   |     42         |       0        |   2020-10-27   |     trial      |    0.00        |
+   |     42         |       1        |   2020-11-03   |  basic monthly |    9.90        |
+   |     42         |       2        |   2021-04-28   |   pro monthly  |   19.90        |
+   
+
+### B. Data Analysis Questions
+#### 1. How many customers has Foodie-Fi ever had?
+  ```sql
+  SELECT
+    COUNT(DISTINCT customer_id) AS customercount
+  FROM foodie_fi.subscriptions;
+  ```
+  
+#### Result
+   |  customercount |
+   |:--------------:|
+   |      1000      |
+   
+#### 2. What is the monthly distribution of trial plan start_date values for our dataset - use the start of the month as the group by value.
+  ```sql
+  SELECT 
+    DATE_TRUNC('Month', start_date) AS startdate,
+    COUNT(plan_id) trial_customer
+  FROM foodie_fi.subscriptions
+  WHERE plan_id = 0
+  GROUP BY startdate
+  ORDER BY startdate;
+  ```
+
+#### Result
+   |    startdate   | trial_customer |
+   |:--------------:|:--------------:|
+   |   2020-01-01   |       88       |
+   |   2020-02-01   |       68       |
+   |   2020-03-01   |       94       |
+   |   2020-04-01   |       81       |
+   |   2020-05-01   |       88       |
+   |   2020-06-01   |       79       |
+   |   2020-07-01   |       89       |
+   |   2020-08-01   |       88       |
+   |   2020-09-01   |       87       |
+   |   2020-10-01   |       79       |
+   |   2020-11-01   |       75       |
+   |   2020-12-01   |       84       |
+   
+#### 3. What plan start_date values occur after the year 2020 for our dataset? Show the breakdown by count of events for each plan_name   
+  ```sql
+  WITH CTE AS(
+  SELECT 
+    subscriptions.customer_id,
+    subscriptions.plan_id,
+    plans.plan_name,
+    EXTRACT('Year'FROM start_date) AS startyear
+  FROM foodie_fi.subscriptions
+  INNER JOIN foodie_fi.plans
+  ON plans.plan_id = subscriptions.plan_id
+  )
+  SELECT
+    plan_id,
+    plan_name,
+    COUNT(plan_id) AS countforplan
+  FROM CTE
+  WHERE startyear IN (2021)
+  GROUP BY plan_id, plan_name
+  ORDER BY plan_id;
+  ```
+  
+#### Result
+   |     plan_id    |    plan_name   |  countforplan  |
+   |:--------------:|:--------------:|:--------------:|
+   |        1       |  basic monthly |        8       |
+   |        2       |   pro monthly  |       60       |
+   |        3       |   pro annual   |       63       |
+   |        4       |     churn      |       71       |
+
+#### 4. What is the customer count and percentage of customers who have churned rounded to 1 decimal place?
+  ```sql
+  SELECT
+    SUM(CASE WHEN plan_id = 4 THEN 1 ELSE 0 END) AS churn_customers,
+    ROUND(100 * SUM(CASE WHEN plan_id = 4 THEN 1 ELSE 0 END) / COUNT(DISTINCT customer_id),1) AS percentage
+  FROM foodie_fi.subscriptions;
+  ```
+  
+#### Result
+   | churn_customers |   percentage   |
+   |:---------------:|:--------------:|
+   |       307       |     30.0       |
+
+#### 5. How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number?
+  ```sql
+  WITH ranked_plans AS (
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    ROW_NUMBER() OVER (
+      PARTITION BY customer_id
+      ORDER BY plan_id
+    ) AS plan_rank
+  FROM foodie_fi.subscriptions
+  ORDER BY customer_id
+  )
+  SELECT
+    SUM(CASE WHEN plan_id = 4 THEN 1 ELSE 0 END) AS churn_customers,
+    ROUND(
+      100 * SUM(CASE WHEN plan_id = 4 THEN 1 ELSE 0 END) /
+      COUNT(*),1
+    ) AS percentage 
+  FROM ranked_plans
+  WHERE plan_rank = 2;
+  ``` 
+  
+#### Result
+   | churn_customers |   percentage   |
+   |:---------------:|:--------------:|
+   |        92       |      9.0       | 
+   
+#### 6. What is the number and percentage of customer plans after their initial free trial?
+  ```sql
+  WITH CTE AS(
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    ROW_NUMBER() OVER (
+      PARTITION BY customer_id
+      ORDER BY start_date
+    ) AS plan_rank
+  FROM foodie_fi.subscriptions
+  ORDER BY customer_id
+  )
+  SELECT
+    plans.plan_id,
+    plans.plan_name,
+    COUNT(*) AS customer_count,
+    ROUND(100 * COUNT(*) / SUM(COUNT(*)) OVER ()) AS percentage
+  FROM cte
+  INNER JOIN foodie_fi.plans
+  ON cte.plan_id = plans.plan_id
+  WHERE plan_rank = 2
+  GROUP BY plans.plan_id, plans.plan_name
+  ORDER BY plans.plan_id;
+  ```
+
+#### Result
+   |     plan_id     |    plan_name   | customer_count  |   percentage   |
+   |:---------------:|:--------------:|:---------------:|:--------------:|
+   |        1        | basic monthly  |      546        |       55       |
+   |        2        |  pro monthly   |      325        |       33       |
+   |        3        |   pro annual   |       37        |        4       |
+   |        4        |     churn      |       92        |        9       |
+   
+#### 7. What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
+  ```sql
+  DROP TABLE IF EXISTS table1;
+  CREATE TEMP TABLE table1 AS
+  WITH CTE AS( 
+  SELECT
+    customer_id, plan_id,
+    MAX(start_date) AS start_date
+  FROM foodie_fi.subscriptions
+  WHERE start_date <= '2020-12-31'
+  GROUP BY customer_id, plan_id
+  ORDER BY customer_id
+  )
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    ROW_NUMBER() OVER(PARTITION BY cte.customer_id 
+    ORDER BY cte.start_date desc) AS rankover
+  FROM cte;
+  ```
+  ```sql
+  WITH cte1 AS(
+  SELECT * FROM table1
+  WHERE rankover = '1'
+  )
+  SELECT
+    plan_id,
+    COUNT(customer_id)
+  FROM cte1
+  GROUP BY plan_id
+  ORDER BY plan_id;
+  ```
+
+#### Result
+
+   
