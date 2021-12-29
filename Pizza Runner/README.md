@@ -3,37 +3,37 @@
 ## Entity Relationship Diagram
 <img width="452" alt="Pizza Runner - ER Diagran" src="https://user-images.githubusercontent.com/93120413/147558806-1f1907ad-0a05-4b2c-a0ac-b6269bfa4632.png">
 
-##  Data Set
-### Table 1: 
+##  Data Sets
+### Table 1: Runners
 The runners table shows the registration_date for each new runner
 
 <img width="113" alt="Pizza Runner - Runners" src="https://user-images.githubusercontent.com/93120413/147558833-b35cde71-d835-448c-ab45-c38159107327.png">
 
-### Table 2: 
+### Table 2: Customer Orders
 - Customer pizza orders are captured in the customer_orders table with 1 row for each individual pizza that is part of the order. 
 - The pizza_id relates to the type of pizza which was ordered whilst the exclusions are the ingredient_id values which should be removed from the pizza and the extras are the ingredient_id values which need to be added to the pizza.
 - Note that customers can order multiple pizzas in a single order with varying exclusions and extras values even if the pizza is the same type! The exclusions and extras columns will need to be cleaned up before using them in your queries.
 
 <img width="289" alt="Pizza Runner - Customer Orders" src="https://user-images.githubusercontent.com/93120413/147558836-d12cdbf1-0ef4-4b7e-9025-37ec9bf6645c.png">
 
-### Table 3: 
+### Table 3: Runner Orders
 - After each orders are received through the system - they are assigned to a runner - however not all orders are fully completed and can be cancelled by the restaurant or the customer. 
 - The pickup_time is the timestamp at which the runner arrives at the Pizza Runner headquarters to pick up the freshly cooked pizzas. The distance and duration fields are related to how far and long the runner had to travel to deliver the order to the respective customer. 
 - There are some known data issues with this table so be careful when using this in your queries - make sure to check the data types for each column in the ERD!
 
 <img width="344" alt="Pizza Runner - Runner Orders" src="https://user-images.githubusercontent.com/93120413/147558843-84e1e3ec-0174-48c6-b97e-8929c136787a.png">
 
-### Table 4:
+### Table 4: Pizza Names
 At the moment - Pizza Runner only has 2 pizzas available the Meat Lovers or Vegetarian!
 
 <img width="94" alt="Pizza Runner - Pizza Names" src="https://user-images.githubusercontent.com/93120413/147558865-764c5af3-b90a-444b-8719-698460ed67db.png">
 
-### Table 5:
+### Table 5: Pizza Recipes
 Each pizza_id has a standard set of toppings which are used as part of the pizza recipe.
 
 <img width="112" alt="Pizza Runner - Pizza Recipes" src="https://user-images.githubusercontent.com/93120413/147558870-9b6de2b7-cc8f-4d18-b281-c831eb87f38e.png">
 
-### Table 6:
+### Table 6: Pizza Toppings
 This table contains all of the topping_name values with their corresponding topping_id value.
 
 <img width="104" alt="Pizza Runner - Pizza Toppings" src="https://user-images.githubusercontent.com/93120413/147558874-b7e313e7-de3c-41e2-bbf2-96fd8de443f5.png">
