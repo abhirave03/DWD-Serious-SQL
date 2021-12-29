@@ -1,6 +1,6 @@
 # Case Study 1 - Danny's Diner
 ![Danny's Diner](https://8weeksqlchallenge.com/images/case-study-designs/1.png)
-## ER Diagram
+## Entity Relationship Diagram
 <img width="625" alt="Danny's Diner - ER Diagram" src="https://user-images.githubusercontent.com/93120413/147490759-c03d8538-0e5d-402a-87a9-f71206624f52.png">
 
 ##  Data Set
