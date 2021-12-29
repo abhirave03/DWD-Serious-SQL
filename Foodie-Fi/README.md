@@ -348,7 +348,8 @@
       WHEN duration>=240 and duration<=270 THEN '240 - 270 days' 
       WHEN duration>=270 and duration<=300 THEN '270 - 300 days' 
       WHEN duration>=300 and duration<=330 THEN '300 - 330 days' 
-      WHEN duration>=330 and duration<=360 THEN '330 - 360 days' END durationrange,
+      WHEN duration>=330 and duration<=360 THEN '330 - 360 days'
+    END durationrange,
     count(*) AS customers
   FROM table1
   GROUP BY duration
@@ -387,7 +388,7 @@
     ROW_NUMBER() OVER(
       PARTITION BY customer_id
       ORDER BY start_date desc
-    )AS plan_rank
+    ) AS plan_rank
   FROM foodie_fi.subscriptions
   WHERE start_date <= '2020-12-31' and plan_id NOT IN('3','4')
   ORDER BY customer_id
@@ -499,7 +500,7 @@
   SELECT * FROM case_1_payments
   ) 
   SELECT
-    customer_id,
+    customer_id AS c_id,
     plans.plan_id,
     plans.plan_name,
     start_date AS payment_date,
@@ -509,7 +510,7 @@
       THEN plans.price - 9.90
       ELSE plans.price
     END AS amount,
-    RANK() OVER w AS payment_order
+    RANK() OVER w AS pay_order
   FROM union_output
   INNER JOIN foodie_fi.plans
   ON union_output.plan_id = plans.plan_id
@@ -522,3 +523,95 @@
   ```
   
 #### Result
+| c_id | plan_id|   plan_name    |  payment_date            | amount | pay_order |
+|:----:|:------:|:--------------:|:------------------------:|:------:|:---------:|
+|1	   |	1     | basic monthly  | 2020-08-08T00:00:00.000Z |	9.9    |  16       |
+|1		 |	1     | basic monthly  | 2020-09-08T00:00:00.000Z |	9.9    |	21       |
+|1		 |	1     | basic monthly  | 2020-10-08T00:00:00.000Z |	9.9    |  26       |
+|1		 |	1     | basic monthly  | 2020-11-08T00:00:00.000Z |	9.9    |	31       |
+|1		 |	1     | basic monthly  | 2020-12-08T00:00:00.000Z |	9.9    |  36       |
+|2		 |	3     | pro annual     | 2020-09-27T00:00:00.000Z |	199    |  2        |
+|2		 |	3     | pro annual     | 2020-10-27T00:00:00.000Z |	199    |  5        |
+|2		 |	3     | pro annual     | 2020-11-27T00:00:00.000Z |	199    |  8        |
+|2		 |	3     | pro annual     | 2020-12-27T00:00:00.000Z |	199    |  11       |
+|7		 |	1     | basic monthly  | 2020-02-12T00:00:00.000Z |	9.9    |	1        |
+|7		 |	1     | basic monthly  | 2020-04-12T00:00:00.000Z |	9.9    |	3        |
+|7		 |	1     |	basic monthly  | 2020-05-12T00:00:00.000Z |	9.9    |	4        |
+|7		 |	2     |	pro monthly    | 2020-05-22T00:00:00.000Z |	19.9   |	3        |     
+|7		 |	1     |	basic monthly  | 2020-06-12T00:00:00.000Z |	19.9   |	6        |
+|7		 |	1     |	basic monthly  | 2020-07-12T00:00:00.000Z |	9.9    |	12       |
+|7		 |	2     |	pro monthly    | 2020-07-22T00:00:00.000Z |	19.9   |	11       |
+|7		 |	1     |	basic monthly  | 2020-08-12T00:00:00.000Z |	9.9    |	17       |
+|7		 |	2     |	pro monthly    | 2020-08-22T00:00:00.000Z |	19.9   |	16       |
+|7		 |	2     |	pro monthly    | 2020-09-22T00:00:00.000Z |	19.9   |	22       |
+|7		 |	1     |	basic monthly  | 2020-10-12T00:00:00.000Z |	9.9    |	27       |
+|7	 	 |	2     |	pro monthly    | 2020-10-22T00:00:00.000Z |	19.9   |	28       |
+|7		 |	1     |	basic monthly  | 2020-11-12T00:00:00.000Z |	9.9    |	32       |
+|7		 |	2     |	pro monthly    | 2020-11-22T00:00:00.000Z |	19.9   |	34       |
+|7		 |	1     |	basic monthly  | 2020-12-12T00:00:00.000Z |	9.9    |	37       |
+|7		 |	2     |	pro monthly    | 2020-12-22T00:00:00.000Z |	19.9   |	40       |
+|13		 |	1     |	basic monthly  | 2020-12-22T00:00:00.000Z |	9.9    |	39       |
+|15		 |	2     |	pro monthly    | 2020-03-24T00:00:00.000Z |	19.9   |	1        |
+|15		 |	2     |	pro monthly    | 2020-04-24T00:00:00.000Z |	19.9   |	2        |
+|15		 |	2     |	pro monthly    | 2020-05-24T00:00:00.000Z |	19.9   |	4        |
+|15		 |	2     |	pro monthly    | 2020-06-24T00:00:00.000Z |	19.9   |	7        |
+|15		 |	2     |	pro monthly    | 2020-07-24T00:00:00.000Z |	19.9   |	12       |
+|15		 |	2     |	pro monthly    | 2020-08-24T00:00:00.000Z |	19.9   |	17       |
+|15		 |	2     |	pro monthly    | 2020-09-24T00:00:00.000Z |	19.9   |	23       |
+|15		 |	2     |	pro monthly    | 2020-10-24T00:00:00.000Z |	19.9   |	29       |
+|15		 |	2     |	pro monthly    | 2020-11-24T00:00:00.000Z |	19.9   |	35       |
+|15		 |	2     |	pro monthly    | 2020-12-24T00:00:00.000Z |	19.9   |	41       |
+|16		 |	1     |	basic monthly  | 2020-06-07T00:00:00.000Z |	9.9    |	7        |
+|16		 |	1     |	basic monthly  | 2020-07-07T00:00:00.000Z |	9.9    |	11       |
+|16		 |	1     |	basic monthly  | 2020-08-07T00:00:00.000Z |	9.9    |	15       |
+|16		 |	1     |	basic monthly  | 2020-09-07T00:00:00.000Z |	9.9    |	20       |
+|16		 |	1     |	basic monthly  | 2020-10-07T00:00:00.000Z |	9.9    |	25       |
+|16		 |	3     |	pro annual     | 2020-10-21T00:00:00.000Z |	199    |	4        |
+|16		 |	1     |	basic monthly  | 2020-11-07T00:00:00.000Z |	9.9    |	30       |
+|16		 |	3     |	pro annual     | 2020-11-21T00:00:00.000Z |	199    |	7        |
+|16		 |	1     |	basic monthly  | 2020-12-07T00:00:00.000Z |	9.9    |	35       |
+|16		 |	3     |	pro annual     | 2020-12-21T00:00:00.000Z |	199    |	10       |
+|18		 |	2     |	pro monthly    | 2020-07-13T00:00:00.000Z |	19.9   |	9        |
+|18		 |	2     |	pro monthly    | 2020-08-13T00:00:00.000Z |	19.9   |	14       |
+|18		 |	2     |	pro monthly    | 2020-09-13T00:00:00.000Z |	19.9   |	20       |
+|18		 |	2     |	pro monthly    | 2020-10-13T00:00:00.000Z |	19.9   |	26       |
+|18		 |	2     |	pro monthly    | 2020-11-13T00:00:00.000Z |	19.9   |	32       |
+|18		 |	2     |	pro monthly    | 2020-12-13T00:00:00.000Z |	19.9   |	38       |
+|19		 |	2     |	pro monthly    | 2020-06-29T00:00:00.000Z |	19.9   |	8        |
+|19		 |	2     |	pro monthly    | 2020-07-29T00:00:00.000Z |	19.9   |	13       |
+|19		 |	2     |	pro monthly    | 2020-08-29T00:00:00.000Z |	19.9   |	19       |
+|19		 |	3     |	pro annual     | 2020-08-29T00:00:00.000Z |	199    |	1        |
+|19		 |	2     |	pro monthly    | 2020-09-29T00:00:00.000Z |	19.9   |	25       |
+|19		 |	3     |	pro annual     | 2020-09-29T00:00:00.000Z |	199    |	3        |
+|19		 |	3     |	pro annual     | 2020-10-29T00:00:00.000Z |	199    |	6        |
+|19		 |	2     |	pro monthly    | 2020-10-29T00:00:00.000Z |	19.9   |	31       |
+|19		 |	2     |	pro monthly    | 2020-11-29T00:00:00.000Z | 19.9   |	37       |
+|19		 |	3     |	pro annual     | 2020-11-29T00:00:00.000Z |	199    |	9        |
+|19		 |	2     |	pro monthly    | 2020-12-29T00:00:00.000Z |	19.9   |	43       |
+|19		 |	3     |	pro annual     | 2020-12-29T00:00:00.000Z |	199    |	12       |
+|25		 |	1     |	basic monthly  | 2020-05-17T00:00:00.000Z |	9.9    |	5        |
+|25		 |	2     |	pro monthly    | 2020-06-16T00:00:00.000Z |	19.9   |	5        |
+|25		 |	1     |	basic monthly  | 2020-06-17T00:00:00.000Z |	9.9    |	9        |
+|25		 |	2     |	pro monthly    | 2020-07-16T00:00:00.000Z |	19.9   |	10       |
+|25		 |	1     |	basic monthly  | 2020-07-17T00:00:00.000Z |	9.9    |	13       |
+|25		 |	2     |	pro monthly    | 2020-08-16T00:00:00.000Z |	19.9   |	15       |
+|25		 |	1     |	basic monthly  | 2020-08-17T00:00:00.000Z |	9.9    |	18       |
+|25		 |	2     |	pro monthly    | 2020-09-16T00:00:00.000Z |	19.9   |	21       |
+|25		 |	1     |	basic monthly  | 2020-09-17T00:00:00.000Z |	9.9    |	23       |
+|25		 |	2     |	pro monthly    | 2020-10-16T00:00:00.000Z |	19.9   |	27       |
+|25		 |	1     |	basic monthly  | 2020-10-17T00:00:00.000Z |	9.9    |	28       |
+|25		 |	2     |	pro monthly    | 2020-11-16T00:00:00.000Z |	19.9   |	33       |
+|25		 |	1     |	basic monthly  | 2020-11-17T00:00:00.000Z |	9.9    |	33       |
+|25		 |	2     |	pro monthly    | 2020-12-16T00:00:00.000Z |	19.9   |	39       |
+|25		 |	1     |	basic monthly  | 2020-12-17T00:00:00.000Z |	9.9    |	38       |
+|39		 |	1     |	basic monthly  | 2020-07-04T00:00:00.000Z |	9.9    |	10       |
+|39		 |	1     |	basic monthly  | 2020-08-04T00:00:00.000Z |	9.9    |	14       |
+|39		 |	2     |	pro monthly    | 2020-08-25T00:00:00.000Z |	19.9   |	18       |
+|39		 |	1     |	basic monthly  | 2020-09-04T00:00:00.000Z |	9.9    |	19       |
+|39		 |	2     |	pro monthly    | 2020-09-25T00:00:00.000Z |	19.9   |	24       |
+|39		 |	1     |	basic monthly  | 2020-10-04T00:00:00.000Z |	9.9    |	24       |
+|39		 |	2     |	pro monthly    | 2020-10-25T00:00:00.000Z |	19.9   |	30       |
+|39		 |	1     |	basic monthly  | 2020-11-04T00:00:00.000Z |	9.9    |	29       |
+|39		 |	2     |	pro monthly    | 2020-11-25T00:00:00.000Z |	19.9   |	36       |
+|39		 |	1     |	basic monthly  | 2020-12-04T00:00:00.000Z |	9.9    |	34       |
+|39		 |	2     | pro monthly    | 2020-12-25T00:00:00.000Z |	19.9   |	42       |
