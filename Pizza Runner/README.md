@@ -1,6 +1,6 @@
 # Case Study 2 - Pizza Runner
 ![Pizza Runner](https://8weeksqlchallenge.com/images/case-study-designs/2.png)
-## ER Diagram
+## Entity Relationship Diagram
 <img width="452" alt="Pizza Runner - ER Diagran" src="https://user-images.githubusercontent.com/93120413/147558806-1f1907ad-0a05-4b2c-a0ac-b6269bfa4632.png">
 
 ##  Data Set
