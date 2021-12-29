@@ -248,5 +248,277 @@
   ```
 
 #### Result
-
+   |     plan_id     |      count     |
+   |:---------------:|:--------------:|
+   |        0        |       19       |
+   |        1        |      224       |
+   |        2        |      326       |
+   |        3        |      195       |
+   |        4        |      236       |
    
+#### 8. How many customers have upgraded to an annual plan in 2020?
+  ```sql
+  WITH CTE AS(
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    ROW_NUMBER() OVER (
+      PARTITION BY customer_id
+      ORDER BY start_date
+    ) AS plan_rank
+  FROM foodie_fi.subscriptions
+  WHERE start_date <= '2020-12-31'
+  ORDER BY customer_id
+  )
+  SELECT
+    SUM(CASE WHEN plan_id = 3 THEN 1 ELSE 0 END) AS Upgraded
+  FROM CTE
+  WHERE plan_rank >= 2;
+  ```
+  
+#### Result
+   |    upgraded    |
+   |:--------------:|
+   |      195       |
+   
+#### 9. How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
+  ```sql
+  WITH cte AS(
+  SELECT 
+    customer_id,
+    start_date
+  FROM foodie_fi.subscriptions
+  WHERE plan_id = 3
+  ),
+  cte1 AS(
+  SELECT
+    customer_id,
+    start_date
+  FROM foodie_fi.subscriptions
+  WHERE plan_id = 0
+  )
+  SELECT
+    ROUND(AVG(DATE_PART('day',cte.start_date::TIMESTAMP - cte1.start_date::TIMESTAMP))) AS averagedays
+  FROM cte 
+  INNER JOIN cte1
+  ON cte.customer_id = cte1.customer_id;
+  ```
+
+#### Result
+   |   averagedays  |
+   |:--------------:|
+   |      105       | 
+   
+#### 10. Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
+  ```sql
+  DROP TABLE IF EXISTS table1;
+  CREATE TEMP TABLE table1 AS
+  WITH cte AS(
+  SELECT 
+    customer_id,
+    start_date
+  FROM foodie_fi.subscriptions
+  WHERE plan_id = 3
+  ),
+  cte1 AS(
+  SELECT
+    customer_id,
+    start_date
+  FROM foodie_fi.subscriptions
+  WHERE plan_id = 0
+  )
+  SELECT
+    DATE_PART('day',cte.start_date::TIMESTAMP - cte1.start_date::TIMESTAMP) AS duration
+  FROM cte 
+  INNER JOIN cte1
+  ON cte.customer_id = cte1.customer_id;
+  ```
+  ```sql  
+  WITH cte3 AS(
+  SELECT
+    CASE WHEN duration>=0 and duration<=30 THEN '0 - 30 days'
+      WHEN duration>=30 and duration<=60 THEN '30 - 60 days' 
+      WHEN duration>=60 and duration<=90 THEN '60 - 90 days' 
+      WHEN duration>=90 and duration<=120 THEN '90 - 120 days' 
+      WHEN duration>=120 and duration<=150 THEN '120 - 150 days' 
+      WHEN duration>=150 and duration<=180 THEN '150 - 180 days' 
+      WHEN duration>=180 and duration<=210 THEN '180 - 210 days' 
+      WHEN duration>=210 and duration<=240 THEN '210 - 240 days' 
+      WHEN duration>=240 and duration<=270 THEN '240 - 270 days' 
+      WHEN duration>=270 and duration<=300 THEN '270 - 300 days' 
+      WHEN duration>=300 and duration<=330 THEN '300 - 330 days' 
+      WHEN duration>=330 and duration<=360 THEN '330 - 360 days' END durationrange,
+    count(*) AS customers
+  FROM table1
+  GROUP BY duration
+  ORDER BY durationrange
+  )
+  SELECT
+    durationrange,
+    SUM(customers) AS customer
+  FROM cte3
+  GROUP BY durationrange;
+  ```
+  
+#### Result
+   |  durationrange  |    customer    |
+   |:---------------:|:--------------:|
+   |   0 - 30 days   |       49       |
+   | 120 - 150 days  |       42       |
+   | 150 - 180 days  |       36       |
+   | 180 - 210 days  |       26       |
+   | 210 - 240 days  |        4       |
+   | 240 - 270 days  |        5       |
+   | 270 - 300 days  |        1       |
+   | 300 - 330 days  |        1       |
+   |   30 - 60 days  |       24       |
+   | 330 - 360 days  |        1       |
+   |   60 - 90 days  |       34       |
+   |  90 - 120 days  |       35       |
+
+#### 11. How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
+  ```sql
+  WITH CTE AS(
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    ROW_NUMBER() OVER(
+      PARTITION BY customer_id
+      ORDER BY start_date desc
+    )AS plan_rank
+  FROM foodie_fi.subscriptions
+  WHERE start_date <= '2020-12-31' and plan_id NOT IN('3','4')
+  ORDER BY customer_id
+  )
+  SELECT
+    SUM(CASE WHEN plan_id = 1 THEN 1 ELSE 0 END) AS dowgradedcustomer
+  FROM CTE 
+  WHERE plan_rank = 2;
+  ```
+
+#### Result
+   | dowgradedcustomer |
+   |:-----------------:|
+   |        163        | 
+   
+### C. Challenge Payment Question
+#### 1. The Foodie-Fi team wants you to create a new payments table for the year 2020 that includes amounts paid by each customer in the subscriptions table with the following requirements: monthly payments always occur on the same day of month as the original start_date of any monthly paid plan, upgrades from basic to monthly or pro plans are reduced by the current paid amount in that month and start immediately, upgrades from pro monthly to pro annual are paid at the end of the current billing period and also starts at the end of the month period, once a customer churns they will no longer make payments.
+  ```sql
+  WITH lead_plans AS (
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    LEAD(plan_id) OVER (
+      PARTITION BY customer_id
+      ORDER BY start_date
+    ) AS lead_plan_id,
+    LEAD(start_date) OVER (
+      PARTITION BY customer_id
+      ORDER BY start_date
+    ) AS lead_start_date
+  FROM foodie_fi.subscriptions
+  WHERE DATE_PART('year', start_date) = 2020
+  AND plan_id != 0
+  ),
+  case_1 AS (
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    DATE_PART('mon', AGE('2020-12-31'::DATE, start_date))::INTEGER AS month_diff
+  FROM lead_plans
+  WHERE plan_id IN (1,2,3)
+  ),
+  case_1_payments AS (
+  SELECT
+    customer_id,
+    plan_id,
+    (start_date + GENERATE_SERIES(0, month_diff) * INTERVAL '1 month')::DATE AS start_date
+  FROM case_1
+  ),
+  case_2 AS (
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    DATE_PART('mon', AGE(lead_start_date - 1, start_date))::INTEGER AS month_diff
+  FROM lead_plans
+  WHERE lead_plan_id = 4
+  ),
+  case_2_payments AS (
+  SELECT
+    customer_id,
+    plan_id,
+    (start_date + GENERATE_SERIES(0, month_diff) * INTERVAL '1 month')::DATE AS start_date
+  FROM case_2
+  ),
+  case_3 AS (
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    DATE_PART('mon', AGE(lead_start_date - 1, start_date))::INTEGER AS month_diff
+  FROM lead_plans
+  WHERE plan_id = 1 AND lead_plan_id IN (2, 3)
+  ),
+  case_3_payments AS (
+  SELECT
+    customer_id,
+    plan_id,
+    (start_date + GENERATE_SERIES(0, month_diff) * INTERVAL '1 month')::DATE AS start_date
+  FROM case_3
+  ),
+  case_4 AS (
+  SELECT
+    customer_id,
+    plan_id,
+    start_date,
+    DATE_PART('mon', AGE(lead_start_date - 1, start_date))::INTEGER AS month_diff
+  FROM lead_plans
+  WHERE plan_id = 2 AND lead_plan_id = 3
+  ),
+  case_4_payments AS (
+  SELECT
+    customer_id,
+    plan_id,
+    (start_date + GENERATE_SERIES(0, month_diff) * INTERVAL '1 month')::DATE AS start_date
+  FROM case_4
+  ),
+  case_5_payments AS (
+  SELECT
+    customer_id,
+    plan_id,
+    start_date
+  FROM lead_plans
+  WHERE plan_id = 3
+  ),
+  union_output AS (
+  SELECT * FROM case_1_payments
+  ) 
+  SELECT
+    customer_id,
+    plans.plan_id,
+    plans.plan_name,
+    start_date AS payment_date,
+    CASE
+      WHEN union_output.plan_id IN (2, 3) AND
+      LAG(union_output.plan_id) OVER w = 1
+      THEN plans.price - 9.90
+      ELSE plans.price
+    END AS amount,
+    RANK() OVER w AS payment_order
+  FROM union_output
+  INNER JOIN foodie_fi.plans
+  ON union_output.plan_id = plans.plan_id
+  WHERE customer_id IN (1, 2, 7, 11, 13, 15, 16, 18, 19, 25, 39)
+  WINDOW w AS (
+    PARTITION BY union_output.plan_id
+    ORDER BY start_date
+  )
+  ORDER BY customer_id, payment_date;
+  ```
+  
+#### Result
