@@ -1,4 +1,4 @@
-# Case Study 3 - Data Bank
+# Case Study 4 - Data Bank
 ![Data Bank](https://8weeksqlchallenge.com/images/case-study-designs/4.png)
 ## Entity Relationship Diagram
 <img width="305" alt="Data Bank - ER Diagram" src="https://user-images.githubusercontent.com/93120413/147638392-cc4690aa-4975-49c8-8159-9ad0fa85a08b.png">
