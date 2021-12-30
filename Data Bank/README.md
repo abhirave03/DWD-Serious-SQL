@@ -1,26 +1,26 @@
 # Case Study 4 - Data Bank
 ![Data Bank](https://8weeksqlchallenge.com/images/case-study-designs/4.png)
 ## Entity Relationship Diagram
-<img width="305" alt="Data Bank - ER Diagram" src="https://user-images.githubusercontent.com/93120413/147638392-cc4690aa-4975-49c8-8159-9ad0fa85a08b.png">
+<img width="608" alt="Data Bank - ER Diagram" src="https://user-images.githubusercontent.com/93120413/147722479-1e248a63-9f82-455f-880c-13f10c0f5e1d.png">
 
 ##  Data Sets
 ### Table 1: Regions
 - Just like popular cryptocurrency platforms - Data Bank is also run off a network of nodes where both money and data is stored across the globe. In a traditional banking sense - you can think of these nodes as bank branches or stores that exist around the world.
 - This regions table contains the region_id and their respective region_name values
 
-<img width="69" alt="Data Bank - Regions" src="https://user-images.githubusercontent.com/93120413/147638397-74e4495e-b2be-494b-80bb-60c801ce48b2.png">
+<img width="131" alt="Data Bank - Regions" src="https://user-images.githubusercontent.com/93120413/147722482-4d1b56ab-ebb6-4084-abb0-35ccbc0ee827.png">
 
 ### Table 2: Customer Nodes
 - Customers are randomly distributed across the nodes according to their region - this also specifies exactly which node contains both their cash and data.
 - This random distribution changes frequently to reduce the risk of hackers getting into Data Bank’s system and stealing customer’s money and data!
 - Below is a sample of the top 10 rows of the data_bank.customer_nodes
 
-<img width="154" alt="Data Bank - Customer Nodes" src="https://user-images.githubusercontent.com/93120413/147638403-1e447a68-4bcc-4ef9-a0f3-ae6d7ea1bef9.png">
+<img width="311" alt="Data Bank - Customer Nodes" src="https://user-images.githubusercontent.com/93120413/147722485-df7b8059-d2e3-4f67-919e-66e8f620507a.png">
 
 ### Table 3: Customer Transactions
 - This table stores all customer deposits, withdrawals and purchases made using their Data Bank debit card.
 
-<img width="131" alt="Data Bank - Customer Transactions" src="https://user-images.githubusercontent.com/93120413/147638407-d1684d72-53bc-49fd-b9ad-009a2d441290.png">
+<img width="259" alt="Data Bank - Customer Transactions" src="https://user-images.githubusercontent.com/93120413/147722487-d6b88390-e266-42f4-8527-40e741ad30cc.png">
 
 ## Case Study Question and Answer
 ### A. Customer Nodes Exploration
