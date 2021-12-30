@@ -11,7 +11,7 @@
 - Customers can sign up to an initial 7 day free trial will automatically continue with the pro monthly subscription plan unless they cancel, downgrade to basic or upgrade to an annual pro plan at any point during the trial.
 - When customers cancel their Foodie-Fi service - they will have a churn plan record with a null price but their plan will continue until the end of the billing period.
 
-<img width="117" alt="Foodie Fi - Plans" src="https://user-images.githubusercontent.com/93120413/147627288-d16c26b9-8c0c-4848-9893-ce4554afcfb8.png">
+<img width="117" alt="Foodie Fi - Plans" src="https://user-images.githubusercontent.com/93120413/147722374-d4dbf881-c3cb-4419-9bcc-faa81115b4cb.png">
 
 ### Table 1: Subscriptions
 - Customer subscriptions show the exact date where their specific plan_id starts.
@@ -19,7 +19,7 @@
 - When customers upgrade their account from a basic plan to a pro or annual pro plan - the higher plan will take effect straightaway.
 - When customers churn - they will keep their access until the end of their current billing period but the start_date will be technically the day they decided to cancel their service.
 
-<img width="92" alt="Foodie Fi - Subscriptions" src="https://user-images.githubusercontent.com/93120413/147627289-79839ae8-0687-4750-8b0e-5a3a5f1872e2.png">
+<img width="122" alt="Foodie Fi - Subscriptions" src="https://user-images.githubusercontent.com/93120413/147722375-6391e797-0710-47d7-a967-0c1d81252ba2.png">
 
 ## Case Study Question and Answer
 ### A. Customer Journey
