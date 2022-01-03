@@ -392,3 +392,14 @@ This table lists all of the pages on the Clique Bait website which are tagged an
   GROUP BY users.user_id, events.visit_id, campaign_identifier.campaign_name
   ORDER BY users.user_id;
   ```
+#### Result
+  | user_id |  visit_id  |    visit_start_time    |page_views|cart_adds|purchases|          	campaign_name	    	 |impression| click |	                           cart_products				                        	   |
+  |:-------:|-----------:|-----------------------:|---------:|--------:|--------:|--------------------------------:|---------:|------:|-----------------------------------------------------------------------------:|
+  |    1	  |    02a5d5  |2020-02-26T16:57:26.261Z|    4	   |	  0    | 	  0    |Half Off - Treat Your Shellf(ish)|     0    |	  0   |	    		                 	NULL                                               |
+  |    1	  |    0826dc  |2020-02-26T05:58:37.919Z|    1     |	  0    |	  0    |Half Off - Treat Your Shellf(ish)|     0    | 	0   |	    		                	NULL                                               |
+  |    1	  |    0fc437  |2020-02-04T17:49:49.603Z|    10    |	  6    |	  1    |Half Off - Treat Your Shellf(ish)|     1    | 	1   |	Tuna, Russian Caviar, Black Truffle, Abalone, Crab, Oyster                   |
+  |    1	  |    30b94d  |2020-03-15T13:12:54.024Z|    9     |  	7    |	  1    |Half Off - Treat Your Shellf(ish)|     1    | 	1   |	Salmon, Kingfish, Tuna, Russian Caviar, Abalone, Lobster, Crab               |
+  |    1	  |    41355d  |2020-03-25T00:11:17.861Z|    6     |  	1    |	  0    |Half Off - Treat Your Shellf(ish)|     0    | 	0   |	Lobster                                                                      |
+  |    1	  |    ccf365  |2020-02-04T19:16:09.183Z|    7     |	  3    |	  1    |Half Off - Treat Your Shellf(ish)|     0    | 	0   |	Lobster, Crab, Oyster                                                        |
+  |    1	  |    eaffde  |2020-03-25T20:06:32.343Z|    10    |  	8    |	  1    |Half Off - Treat Your Shellf(ish)|     1    |	  1   |	Salmon, Tuna, Russian Caviar, Black Truffle, Abalone, Lobster, Crab, Oyster  |
+  |    1	  |    f7c798  |2020-03-15T02:23:26.313Z|    9	   |    3    |	  1    |Half Off - Treat Your Shellf(ish)|     0    |	  0   |	Russian Caviar, Crab, Oyster                                                 |
