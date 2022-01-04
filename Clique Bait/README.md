@@ -1,4 +1,4 @@
-# Case Study 5 - Clique Bait
+# Case Study 6 - Clique Bait
 ![Clique Bait](https://8weeksqlchallenge.com/images/case-study-designs/6.png)
 
 ##  Data Sets
