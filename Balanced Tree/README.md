@@ -506,7 +506,6 @@ These tables are used only for the bonus question where we will use them to recr
   INNER JOIN cte_ranked_combos
   ON cte_combo_transactions.combo = cte_ranked_combos.combo
   )
--- step 6
   SELECT
     product_details.product_id,
     product_details.product_name,
