@@ -105,20 +105,7 @@ This mapping table links the interest_id with their relevant interest informatio
   ON interest_metrics.interest_id = interest_map.id
   WHERE _month IS NOT NULL and interest_metrics.interest_id = '21246';
   ```
-  #### Result
-    |_month|_year|		month_year          	|interest_id|composition|index_value|ranking|percentile_ranking|interest_name	              		|interest_summary	                        			      |created_at		            |	last_modified        	 |
-    |:----:|:---:|:------------------------:|:---------:|:---------:|:---------:|:-----:|:----------------:|:------------------------------:|:---------------------------------------------------:|:-----------------------:|:----------------------:|
-    |7     |2018 |2018-07-01T00:00:00.000Z	|  21246    |	2.26      |0.65       |722    |0.96              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |8     |2018 |2018-08-01T00:00:00.000Z	|  21246    |	2.13      |0.59       |765    |0.26              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |9     |2018 |2018-09-01T00:00:00.000Z	|  21246    |	2.06      |0.61       |774    |0.77              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |10    |2018 |2018-10-01T00:00:00.000Z	|  21246    |	1.74      |0.58       |855    |0.23              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |11    |2018 |2018-11-01T00:00:00.000Z	|  21246    |	2.25      |0.78       |908    |2.16              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |12    |2018 |2018-12-01T00:00:00.000Z	|  21246    |	1.97      |0.7        |983    |1.21              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |1     |2019 |2019-01-01T00:00:00.000Z	|  21246    |	2.05      |0.76       |954    |1.95              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |2     |2019 |2019-02-01T00:00:00.000Z	|  21246    |	1.84      |0.68       |1109   |1.07              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |3     |2019 |2019-03-01T00:00:00.000Z	|  21246    |	1.75      |0.67       |1123   |1.14              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-    |4     |2019 |2019-04-01T00:00:00.000Z	|  21246    |	1.58	    |0.63       |1092   |0.64              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
-
+  
 #### 7. Are there any records in your joined table where the month_year value is before the created_at value from the fresh_segments.interest_map table? Do you think these values are valid and why?
   ```sql
   WITH cte AS(
@@ -448,18 +435,18 @@ This mapping table links the interest_id with their relevant interest informatio
   LIMIT 10;
   ```
 #### Result
-    |	month_year		          	|	interest_name			                    |averagecomposition|	  ranked	|
-    |:-------------------------:|:-------------------------------------:|:----------------:|:----------:|
-    |	2018-07-01T00:00:00.000Z	|	Las Vegas Trip Planners		            |	7.36	           |	    1	    |
-    |	2018-07-01T00:00:00.000Z	|	Gym Equipment Owners		              |	6.94	           |	    2	    |
-    |	2018-07-01T00:00:00.000Z	|	Cosmetics and Beauty Shoppers	        |	6.78	           |	    3	    |
-    |	2018-07-01T00:00:00.000Z	|	Luxury Retail Shoppers		            |	6.61	           |	    4	    |
-    |	2018-07-01T00:00:00.000Z	|	Furniture Shoppers		                |	6.51	           |	    5	    |
-    |	2018-07-01T00:00:00.000Z	|	Asian Food Enthusiasts		            |	6.1	             |	    6	    |
-    |	2018-07-01T00:00:00.000Z	|	Recently Retired Individuals	        |	5.72	           |	    7	    |
-    |	2018-07-01T00:00:00.000Z	|	Family Adventures Travelers	          |	4.85	           |	    8	    |
-    |	2018-07-01T00:00:00.000Z	|	Work Comes First Travelers	          |	4.8	             |	    9	    |
-    |	2018-07-01T00:00:00.000Z	|	HDTV Researchers		                  |	4.71	           |	    10	   |
+  |	month_year		          	|	interest_name			                    |averagecomposition|	  ranked	|
+  |:-------------------------:|:-------------------------------------:|:----------------:|:----------:|
+  |	2018-07-01T00:00:00.000Z	|	Las Vegas Trip Planners		            |	7.36	           |	    1	    |
+  |	2018-07-01T00:00:00.000Z	|	Gym Equipment Owners		              |	6.94	           |	    2	    |
+  |	2018-07-01T00:00:00.000Z	|	Cosmetics and Beauty Shoppers	        |	6.78	           |	    3	    |
+  |	2018-07-01T00:00:00.000Z	|	Luxury Retail Shoppers		            |	6.61	           |	    4	    |
+  |	2018-07-01T00:00:00.000Z	|	Furniture Shoppers		                |	6.51	           |	    5	    |
+  |	2018-07-01T00:00:00.000Z	|	Asian Food Enthusiasts		            |	6.1	             |	    6	    |
+  |	2018-07-01T00:00:00.000Z	|	Recently Retired Individuals	        |	5.72	           |	    7	    |
+  |	2018-07-01T00:00:00.000Z	|	Family Adventures Travelers	          |	4.85	           |	    8	    |
+  |	2018-07-01T00:00:00.000Z	|	Work Comes First Travelers	          |	4.8	             |	    9	    |
+  |	2018-07-01T00:00:00.000Z	|	HDTV Researchers		                  |	4.71	           |	    10	  |
  
  #### 2. For all of these top 10 interests - which interest appears the most often?
   ```sql
