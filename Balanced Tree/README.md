@@ -333,5 +333,206 @@ These tables are used only for the bonus question where we will use them to recr
   ORDER BY segmentid;
   ```  
 #### Result
+  | segmentid |  segmentname  |   	      productname          |	revenue  |  percen  |
+  |:---------:|:-------------:|:------------------------------:|:---------:|:--------:|
+  |    3      |	    Jeans	    |Black Straight Jeans - Womens   |	121152   |  58.15   |
+  |    3      |	    Jeans	    |Navy Oversized Jeans - Womens   |	50128	   |	24.06   |
+  |    3      |	    Jeans	    |Cream Relaxed Jeans - Womens    |	37070  	 |	17.79   |
+  |    4      |     Jacket	  |Indigo Rain Jacket - Womens     |	71383	   |	19.45   |
+  |    4      |	    Jacket	  |Grey Fashion Jacket - Womens    |	209304   |	57.03   |
+  |    4      |	    Jacket	  |Khaki Suit Jacket - Womens      |	86296	   |	23.51   |
+  |    5      |	    Shirt	    |Blue Polo Shirt - Mens          |	217683   |	53.6    |
+  |    5      |     Shirt	    |White Tee Shirt - Mens          |	152000   |	37.43   |
+  |    5      |	    Shirt	    |Teal Button Up Shirt - Mens     |	36460	   |	8.98    |
+  |    6      |   	Socks	    |White Striped Socks - Mens      |	62135	   |  20.18   |
+  |    6      |	    Socks	    |Pink Fluro Polkadot Socks - Mens|	109330   |	35.5    |
+  |    6      |	    Socks	    |Navy Solid Socks - Mens         |	136512   |	44.33   |
 
+#### 7. What is the percentage split of revenue by segment for each category?
+  ```sql
+  WITH cte AS(
+  SELECT
+    product_details.category_id AS categoryid,
+    product_details.category_name AS categoryname,
+    product_details.segment_id AS segmentid,
+    product_details.segment_name AS segmentname,
+    SUM(sales.qty * sales.price) AS revenue
+  FROM balanced_tree.product_details
+  INNER JOIN balanced_tree.sales
+  ON product_details.product_id = sales.prod_id
+  GROUP BY categoryname, categoryid, segmentid, segmentname
+  )
+  SELECT
+    categoryid,
+    categoryname,
+    segmentid, 
+    segmentname, 
+    revenue,
+    ROUND(100 * revenue / SUM(revenue) OVER(PARTITION BY categoryname),2) AS percentage
+  FROM cte 
+  ORDER BY categoryid, percentage DESC;
+  ```
+#### Result
+  | categoryid |  categoryname |   	segmentid    |	segmentname |  revenue  |  percentage  |
+  |:----------:|:-------------:|:---------------:|:------------:|:---------:|:------------:|
+  |      1     |    Womens     |        4        |   Jacket     |   366983  |     63.79    |
+  |      1     |    Womens     |        3        |   Jeans      |   366983  |     63.79    |
+  |      2     |    Mens       |        5        |   Shirt      |   366983  |     63.79    |
+  |      2     |    Men s      |        6        |   Socks      |   366983  |     63.79    |
+
+#### 8. What is the percentage split of total revenue by category?
+  ```sql
+  WITH cte AS(
+  SELECT
+    product_details.category_id AS categoryid,
+    product_details.category_name AS categoryname,
+    SUM(sales.qty * sales.price) AS revenue
+  FROM balanced_tree.product_details
+  INNER JOIN balanced_tree.sales
+  ON product_details.product_id = sales.prod_id
+  GROUP BY categoryname, categoryid
+  )
+  SELECT
+    categoryid,
+    categoryname,
+    revenue,
+    ROUND(100 * revenue / SUM(revenue) OVER(),2) AS percentage
+  FROM cte 
+  ORDER BY categoryid, percentage DESC;
+  ```
+#### Result
+  | categoryid |  categoryname |  revenue  |  percentage  |
+  |:----------:|:-------------:|:---------:|:------------:|
+  |      1     |    Womens     |  575333   |    44.62     |
+  |      2     |    Mens       |  714120   |    55.38     |
+
+#### 9. What is the total transaction “penetration” for each product? (hint: penetration = number of transactions where at least 1 quantity of a product was purchased divided by total number of transactions)
+  ```sql
+  WITH CTE AS(
+  SELECT
+    product_details.product_id AS productid,
+    product_details.product_name AS productname,
+    COUNT(DISTINCT sales.txn_id) AS producttotal
+  FROM balanced_tree.product_details
+  INNER JOIN balanced_tree.sales
+  ON product_details.product_id = sales.prod_id
+  GROUP BY product_details.product_id,
+  product_details.product_name 
+  ),
+  cte1 AS(
+  SELECT
+    COUNT(DISTINCT txn_id) AS totall
+  FROM balanced_tree.sales
+  )
+  SELECT
+    productid,
+    productname,
+    ROUND((100 * producttotal::NUMERIC/totall),2) AS penetration
+  FROM cte 
+  CROSS JOIN cte1
+  ORDER BY penetration DESC;
+  ```
+#### Result
+  |productid|	      productname	              |  penetration  |
+  |:-------:|:-------------------------------:|:-------------:|
+  |f084eb   |Navy Solid Socks - Mens	        |   51.24       |
+  |9ec847   |Grey Fashion Jacket - Womens     |   51          |
+  |c4a632   |Navy Oversized Jeans - Womens    |   50.96       |
+  |2a2353   |Blue Polo Shirt - Mens	          |   50.72       |
+  |5d267b   |White Tee Shirt - Mens	          |   50.72       |
+  |2feb6b   |Pink Fluro Polkadot Socks - Mens |   50.32       |
+  |72f5d4   |Indigo Rain Jacket - Womens      |   50          |
+  |d5e9a6   |Khaki Suit Jacket - Womens       |   49.88       |
+  |e83aa3   |Black Straight Jeans - Womens    |   49.84       |
+  |e31d39   |Cream Relaxed Jeans - Womens     |   49.72       |
+  |b9a74d   |White Striped Socks - Mens       |   49.72       |
+  |c8d436   |Teal Button Up Shirt - Mens      |   49.68       |
+
+#### 10. 
+  ```sql
+  DROP TABLE IF EXISTS temp_product_combos;
+  CREATE TEMP TABLE temp_product_combos AS
+  WITH RECURSIVE input(product) AS (
+  SELECT product_id::TEXT FROM balanced_tree.product_details
+  ),
+  output_table AS (
+  SELECT 
+    ARRAY[product] AS combo,
+    product,
+    1 AS product_counter
+  FROM input
   
+  UNION ALL  -- important to remove duplicates!
+
+  SELECT
+    ARRAY_APPEND(output_table.combo, input.product),
+    input.product,
+    product_counter + 1
+  FROM output_table
+  INNER JOIN input ON input.product > output_table.product
+  WHERE output_table.product_counter <= 2
+  )
+  SELECT * from output_table
+  WHERE product_counter = 2;
+
+-- step 2
+  WITH cte_transaction_products AS (
+  SELECT
+    txn_id,
+    ARRAY_AGG(prod_id::TEXT ORDER BY prod_id) AS products
+  FROM balanced_tree.sales
+  GROUP BY txn_id
+  ),
+-- step 3
+  cte_combo_transactions AS (
+  SELECT
+    txn_id,
+    combo,
+    products
+  FROM cte_transaction_products
+  CROSS JOIN temp_product_combos  -- previously created temp table above!
+  WHERE combo < products  -- combo is contained in products
+  ),
+-- step 4
+  cte_ranked_combos AS (
+  SELECT
+    combo,
+    COUNT(DISTINCT txn_id) AS transaction_count,
+    RANK() OVER (ORDER BY COUNT(DISTINCT txn_id)) AS combo_rank,
+    ROW_NUMBER() OVER (ORDER BY COUNT(DISTINCT txn_id)) AS combo_id
+  FROM cte_combo_transactions
+  GROUP BY combo
+  ),
+-- step 5
+  cte_most_common_combo_product_transactions AS (
+  SELECT
+    cte_combo_transactions.txn_id,
+    cte_ranked_combos.combo_id,
+    UNNEST(cte_ranked_combos.combo) AS prod_id
+  FROM cte_combo_transactions
+  INNER JOIN cte_ranked_combos
+  ON cte_combo_transactions.combo = cte_ranked_combos.combo
+  )
+-- step 6
+  SELECT
+    product_details.product_id,
+    product_details.product_name,
+    COUNT(DISTINCT top_combo.txn_id) AS combo_transaction_count,
+    SUM(sales.qty) AS quantity,
+    SUM(sales.qty * sales.price) AS revenue,
+    ROUND(
+    SUM(sales.qty * sales.price * sales.discount / 100),
+    2
+    ) AS discount,
+    ROUND(
+    SUM(sales.qty * sales.price * (1 - sales.discount / 100)),
+    2
+    ) AS net_revenue
+  FROM balanced_tree.sales
+  INNER JOIN cte_most_common_combo_product_transactions AS top_combo
+  ON sales.txn_id = top_combo.txn_id
+  AND sales.prod_id = top_combo.prod_id
+  INNER JOIN balanced_tree.product_details
+  ON sales.prod_id = product_details.product_id
+  GROUP BY product_details.product_id, product_details.product_name;
+  ```  
