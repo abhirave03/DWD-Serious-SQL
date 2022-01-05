@@ -530,6 +530,7 @@ These tables are used only for the bonus question where we will use them to recr
   ```
 #### Result
   |product_id|	    product_name              |combo_transaction_count| quantity |  revenue  |	discount  |net_revenue|
+  |:--------:|:------------------------------:|:---------------------:|:--------:|:---------:|:----------:|:---------:|
   |2a2353    |Blue Polo Shirt - Mens          |	1268		              |	7585     |   432345  |	52231     |	432345    |
   |2feb6b    |Pink Fluro Polkadot Socks - Mens|	1258		              |	7491     |   217239  |	24241     |	217239    |
   |5d267b    |White Tee Shirt - Mens          |	962		                |	6442     |   257680  |	29854     |	257680    |
