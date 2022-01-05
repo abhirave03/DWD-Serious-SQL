@@ -106,7 +106,7 @@ This mapping table links the interest_id with their relevant interest informatio
   WHERE _month IS NOT NULL and interest_metrics.interest_id = '21246';
   ```
   #### Result
-    |_month|_year|		month_year          	|interest_id|composition|index_value|ranking|percentile_ranking|interest_name	              		|interest_summary	                        			      |created_at		             |	last_modified	 |
+    |_month|_year|		month_year          	|interest_id|composition|index_value|ranking|percentile_ranking|interest_name	              		|interest_summary	                        			      |created_at		            |	last_modified        	 |
     |:----:|:---:|:------------------------:|:---------:|:---------:|:---------:|:-----:|:----------------:|:------------------------------:|:---------------------------------------------------:|:-----------------------:|:----------------------:|
     |7     |2018 |2018-07-01T00:00:00.000Z	|  21246    |	2.26      |0.65       |722    |0.96              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
     |8     |2018 |2018-08-01T00:00:00.000Z	|  21246    |	2.13      |0.59       |765    |0.26              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
@@ -119,4 +119,27 @@ This mapping table links the interest_id with their relevant interest informatio
     |3     |2019 |2019-03-01T00:00:00.000Z	|  21246    |	1.75      |0.67       |1123   |1.14              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
     |4     |2019 |2019-04-01T00:00:00.000Z	|  21246    |	1.58	    |0.63       |1092   |0.64              |Readers of El Salvadoran Content|People reading news from El Salvadoran media sources.|2018-06-11T17:50:04.000Z	|2018-06-11T17:50:04.000Z|
 
-#### 7. 
+#### 7. Are there any records in your joined table where the month_year value is before the created_at value from the fresh_segments.interest_map table? Do you think these values are valid and why?
+  ```sql
+  WITH cte AS(
+  SELECT 
+    interest_metrics.*,
+    interest_map.interest_name,
+    interest_map.interest_summary,
+    interest_map.created_at ::DATE,
+    interest_map.last_modified,
+    (CASE WHEN interest_metrics.month_year < interest_map.created_at THEN 1 ELSE 0 END) AS casee
+  FROM fresh_segments.interest_metrics
+  INNER JOIN fresh_segments.interest_map
+  ON interest_metrics.interest_id = interest_map.id
+  WHERE interest_metrics._month IS NOT NULL
+  )
+  SELECT
+    COUNT(*)
+  FROM cte
+  WHERE casee=1;
+  ```
+ #### Result
+   |   record_count   |
+   |:----------------:|
+   |      188         |
