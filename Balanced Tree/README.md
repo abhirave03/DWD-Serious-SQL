@@ -461,9 +461,7 @@ These tables are used only for the bonus question where we will use them to recr
     product,
     1 AS product_counter
   FROM input
-  
   UNION ALL  -- important to remove duplicates!
-
   SELECT
     ARRAY_APPEND(output_table.combo, input.product),
     input.product,
@@ -474,8 +472,6 @@ These tables are used only for the bonus question where we will use them to recr
   )
   SELECT * from output_table
   WHERE product_counter = 2;
-
--- step 2
   WITH cte_transaction_products AS (
   SELECT
     txn_id,
@@ -483,7 +479,6 @@ These tables are used only for the bonus question where we will use them to recr
   FROM balanced_tree.sales
   GROUP BY txn_id
   ),
--- step 3
   cte_combo_transactions AS (
   SELECT
     txn_id,
@@ -493,7 +488,6 @@ These tables are used only for the bonus question where we will use them to recr
   CROSS JOIN temp_product_combos  -- previously created temp table above!
   WHERE combo < products  -- combo is contained in products
   ),
--- step 4
   cte_ranked_combos AS (
   SELECT
     combo,
@@ -503,7 +497,6 @@ These tables are used only for the bonus question where we will use them to recr
   FROM cte_combo_transactions
   GROUP BY combo
   ),
--- step 5
   cte_most_common_combo_product_transactions AS (
   SELECT
     cte_combo_transactions.txn_id,
