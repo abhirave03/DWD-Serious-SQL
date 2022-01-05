@@ -448,7 +448,7 @@ These tables are used only for the bonus question where we will use them to recr
   |b9a74d   |White Striped Socks - Mens       |   49.72       |
   |c8d436   |Teal Button Up Shirt - Mens      |   49.68       |
 
-#### 10. 
+#### 10. What is the most common combination of at least 1 quantity of any 3 products in a 1 single transaction?
   ```sql
   DROP TABLE IF EXISTS temp_product_combos;
   CREATE TEMP TABLE temp_product_combos AS
@@ -535,4 +535,84 @@ These tables are used only for the bonus question where we will use them to recr
   INNER JOIN balanced_tree.product_details
   ON sales.prod_id = product_details.product_id
   GROUP BY product_details.product_id, product_details.product_name;
+  ```
+#### Result
+  |product_id|	    product_name              |combo_transaction_count| quantity |  revenue  |	discount  |net_revenue|
+  |2a2353    |Blue Polo Shirt - Mens          |	1268		              |	7585     |   432345  |	52231     |	432345    |
+  |2feb6b    |Pink Fluro Polkadot Socks - Mens|	1258		              |	7491     |   217239  |	24241     |	217239    |
+  |5d267b    |White Tee Shirt - Mens          |	962		                |	6442     |   257680  |	29854     |	257680    |
+  |72f5d4    |Indigo Rain Jacket - Womens     |	759		                |	5354     |   101726  |	11282     |	101726    |
+  |9ec847    |Grey Fashion Jacket - Womens    |	685		                |	4738     |   255852  |	30479     |	255852    |
+  |b9a74d    |White Striped Socks - Mens      |	651		                |	4090     |   69530   |	7568      |	69530     |
+  |c4a632    |Navy Oversized Jeans - Womens   |	674		                |	4266     |   55458   |	5932      |	55458     |
+  |c8d436    |Teal Button Up Shirt - Mens     |	604		                |	3578     |   35780   |	3723      |	35780     |
+  |d5e9a6    |Khaki Suit Jacket - Womens      |	631		                |	3837     |   88251   |	10014     |	88251     |
+  |e31d39    |Cream Relaxed Jeans - Womens    |	584		                |	3481     |   34810   |	3635      |	34810     |
+  |e83aa3    |Black Straight Jeans - Womens   |	635		                |	3710     |   118720  |	13615     |	118720    |
+  |f084eb    |Navy Solid Socks - Mens         |	645		                |	3754     |   135144  |	15134     |	135144    |
+  
+###  D. Bonus Challenge
+#### 1. Use a single SQL query to transform the product_hierarchy and product_prices datasets to the product_details table.
+  ```sql
+  DROP TABLE IF EXISTS temp_product_details;
+  CREATE TEMP TABLE temp_product_details AS
+  WITH RECURSIVE output_table
+    (id, category_id, segment_id, style_id, category_name, segment_name, style_name)
+  AS (
+
+  SELECT
+    id,
+    id AS category_id,
+    NULL::INTEGER AS segment_id,
+    NULL::INTEGER AS style_id,
+    level_text AS category_name,
+    NULL AS segment_name,
+    NULL AS style_name
+  FROM balanced_tree.product_hierarchy
+  WHERE parent_id IS NULL
+
+  UNION ALL
+
+  SELECT
+    product_hierarchy.id,
+    output_table.category_id,
+    CASE
+      WHEN output_table.category_id != product_hierarchy.parent_id
+      THEN product_hierarchy.id
+      ELSE output_table.segment_id
+    END AS category_id,
+    CASE
+      WHEN output_table.segment_id != product_hierarchy.parent_id
+      THEN product_hierarchy.id
+      ELSE output_table.style_id
+    END AS style_id,
+    output_table.category_name,
+    CASE
+      WHEN output_table.category_id != product_hierarchy.parent_id
+      THEN product_hierarchy.level_text
+      ELSE output_table.segment_name
+    END AS segment_name,
+    CASE
+      WHEN output_table.segment_id != product_hierarchy.parent_id
+      THEN product_hierarchy.level_text
+      ELSE output_table.style_name
+    END AS style_name
+  FROM output_table
+  INNER JOIN balanced_tree.product_hierarchy
+  ON output_table.id = product_hierarchy.parent_id
+  AND product_hierarchy.parent_id IS NOT NULL
+  )
+  SELECT
+    product_prices.product_id,
+    product_prices.price,
+    CONCAT_WS(segment_name, '-', style_name, '-', category_name) AS product_name,
+    category_id,
+    segment_id,
+    style_id,
+    category_name,
+    segment_name,
+    style_name
+  FROM output_table
+  INNER JOIN balanced_tree.product_prices
+  ON output_table.id = product_prices.id;
   ```  
