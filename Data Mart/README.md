@@ -78,9 +78,9 @@
   ```
 
 #### Result
-     |   weekday  |
-     |:----------:|
-     |   Monday   |
+  |   weekday  |
+  |:----------:|
+  |   Monday   |
      
 #### 2. What range of week numbers are missing from the dataset?
   ```sql
@@ -98,36 +98,36 @@
   ```
 
 #### Result
-     | week_number |
-     |:-----------:|
-     |      1      |
-     |      2      |
-     |      3      |
-     |      4      |
-     |      5      |
-     |      6      |
-     |      7      |
-     |      8      |
-     |      9      |
-     |      10     |
-     |      11     |
-     |      12     |
-     |      37     |
-     |      38     |
-     |      39     |
-     |      40     |
-     |      41     |
-     |      42     |
-     |      43     |
-     |      44     |
-     |      45     |
-     |      46     |
-     |      47     |
-     |      48     |
-     |      49     |
-     |      50     |
-     |      51     |
-     |      52     |
+  | week_number |
+  |:-----------:|
+  |      1      |
+  |      2      |
+  |      3      |
+  |      4      |
+  |      5      |
+  |      6      |
+  |      7      |
+  |      8      |
+  |      9      |
+  |      10     |
+  |      11     |
+  |      12     |
+  |      37     |
+  |      38     |
+  |      39     |
+  |      40     |
+  |      41     |
+  |      42     |
+  |      43     |
+  |      44     |
+  |      45     |
+  |      46     |
+  |      47     |
+  |      48     |
+  |      49     |
+  |      50     |
+  |      51     |
+  |      52     |
 
 #### 3. How many total transactions were there for each year in the dataset?
   ```sql
@@ -140,11 +140,11 @@
   ``` 
   
 #### Result
-     |   calendar_year   |   totaltransactions   |
-     |:-----------------:|:---------------------:|
-     |       2018        |       346406460       |
-     |       2019        |       365639285       |
-     |       2020        |       375813651       |
+  |   calendar_year   |   totaltransactions   |
+  |:-----------------:|:---------------------:|
+  |       2018        |       346406460       |
+  |       2019        |       365639285       |
+  |       2020        |       375813651       |
 
 #### 4. What is the total sales for each region for each month?
   ```sql
@@ -159,15 +159,15 @@
   ```
 
 #### Result
-     |      region       |       totalsales      |
-     |:-----------------:|:---------------------:|
-     |      AFRICA       |       567767480       |
-     |       ASIA        |       529770793       |
-     |      CANADA       |       144634329       |
-     |      EUROPE       |       35337093        |
-     |      OCEANIA      |       783282888       |
-     |   SOUTH AMERICA   |       71023109        |
-     |        USA        |       225353043       |
+  |      region       |       totalsales      |
+  |:-----------------:|:---------------------:|
+  |      AFRICA       |       567767480       |
+  |       ASIA        |       529770793       |
+  |      CANADA       |       144634329       |
+  |      EUROPE       |       35337093        |
+  |      OCEANIA      |       783282888       |
+  |   SOUTH AMERICA   |       71023109        |
+  |        USA        |       225353043       |
      
 #### 5. What is the total count of transactions for each platform
   ```SQL
@@ -179,23 +179,23 @@
   ```
   
 #### Result
-     |      platform     |       totacount     |
-     |:-----------------:|:-------------------:|
-     |     Shopify       |       5925169       |   
-     |     Retail        |      1081934227     | 
+  |      platform     |       totacount     |
+  |:-----------------:|:-------------------:|
+  |     Shopify       |       5925169       |   
+  |     Retail        |      1081934227     | 
      
 #### 6. What is the percentage of sales for Retail vs Shopify for each month?
   ```sql
   WITH cte_monthly_platform_sales AS (
   SELECT
-    DATE_TRUNC('MONTH', week_date::DATE) AS _month,
+    DATE_TRUNC('MONTH', week_date::DATE) AS month,
     platform,
     SUM(sales) AS monthly_sales
   FROM data_mart
-  GROUP BY  _month, platform
+  GROUP BY  month, platform
   )
   SELECT
-    _month,
+    month,
     ROUND (100 * SUM(CASE WHEN platform = 'Retail' THEN monthly_sales ELSE NULL END) / SUM(monthly_sales)::BIGINT, 2) AS retail_percentage,
     ROUND (100 * SUM(CASE WHEN platform = 'Shopify' THEN monthly_sales ELSE NULL END) / SUM(monthly_sales)::BIGINT, 2) AS shopify_percentage
   FROM cte_monthly_platform_sales
@@ -204,29 +204,29 @@
   ```
   
 #### Result
-     | _month   |retail_percentage|shopify_percentage|
-     |:--------:|:---------------:|:----------------:|
-     |2018-03-01|	97.92	    |	  2.08       |
-     |2018-04-01|	97.93	    |       2.07       |
-     |2018-05-01|	97.73	    |       2.27       |
-     |2018-06-01|	97.76	    |       2.24       |
-     |2018-07-01|	97.75	    |       2.25       |
-     |2018-08-01|	97.71	    |       2.29       |
-     |2018-09-01|	97.68	    |       2.32       |
-     |2019-03-01|	97.71	    |       2.29       |
-     |2019-04-01|	97.80	    |       2.20       |
-     |2019-05-01|	97.52	    |       2.48       |
-     |2019-06-01|	97.42	    |       2.58       |
-     |2019-07-01|	97.35	    |       2.65       |
-     |2019-08-01|	97.21	    |       2.79       |
-     |2019-09-01|	97.09	    |       2.91       |
-     |2020-03-01|	97.30	    |       2.70       |
-     |2020-04-01|	96.96	    |       3.04       |
-     |2020-05-01|	96.71	    |       3.29       |
-     |2020-06-01|	96.80	    |       3.20       |
-     |2020-07-01|	96.67	    |       3.33       |
-     |2020-08-01|	96.51	    |       3.49       |
-     
+  | month    |retail_percentage|shopify_percentage|
+  |:--------:|:---------------:|:----------------:|
+  |2018-03-01|	97.92	      |	  2.08         |
+  |2018-04-01|	97.93	      |       2.07       |
+  |2018-05-01|	97.73	      |       2.27       |
+  |2018-06-01|	97.76	      |       2.24       |
+  |2018-07-01|	97.75	      |       2.25       |
+  |2018-08-01|	97.71	      |       2.29       |
+  |2018-09-01|	97.68	      |       2.32       |
+  |2019-03-01|	97.71	      |       2.29       |
+  |2019-04-01|	97.80	      |       2.20       |
+  |2019-05-01|	97.52	      |       2.48       |
+  |2019-06-01|	97.42	      |       2.58       |
+  |2019-07-01|	97.35	      |       2.65       |
+  |2019-08-01|	97.21	      |       2.79       |
+  |2019-09-01|	97.09	      |       2.91       |
+  |2020-03-01|	97.30	      |       2.70       |
+  |2020-04-01|	96.96	      |       3.04       |
+  |2020-05-01|	96.71	      |       3.29       |
+  |2020-06-01|	96.80	      |       3.20       |
+  |2020-07-01|	96.67	      |       3.33       |
+  |2020-08-01|	96.51	      |       3.49       |
+    
 #### 7. What is the amount and percentage of sales by demographic for each year in the dataset?
   ```sql
   SELECT
@@ -240,17 +240,17 @@
   ```
 
 #### Result
-     | calendar_year |   demographic   |      sales       |   percentage    |
-     |:-------------:|:---------------:|:----------------:|:---------------:|
-     |    2018       |    Unknown      |    5369434106    |      32.86      |
-     |    2018       |    Couples      |    3402388688    |      30.38      |
-     |    2018       |    Families     |    4125558033    |      31.25      |
-     |    2019       |    Families     |    4463918344    |      33.81      |
-     |    2019       |    Unknown      |    5532862221    |      33.86      |
-     |    2019       |    Couples      |    3749251935    |      33.47      |
-     |    2020       |    Families     |    4614338065    |      34.95      |
-     |    2020       |    Couples      |    4049566928    |      36.15      |
-     |    2020       |    Unknown      |    5436315907    |      33.27      |
+  | calendar_year |   demographic   |      sales       |   percentage    |
+  |:-------------:|:---------------:|:----------------:|:---------------:|
+  |    2018       |    Unknown      |    5369434106    |      32.86      |
+  |    2018       |    Couples      |    3402388688    |      30.38      |
+  |    2018       |    Families     |    4125558033    |      31.25      |
+  |    2019       |    Families     |    4463918344    |      33.81      |
+  |    2019       |    Unknown      |    5532862221    |      33.86      |
+  |    2019       |    Couples      |    3749251935    |      33.47      |
+  |    2020       |    Families     |    4614338065    |      34.95      |
+  |    2020       |    Couples      |    4049566928    |      36.15      |
+  |    2020       |    Unknown      |    5436315907    |      33.27      |
      
  #### 8. Which age_band and demographic values contribute the most to Retail sales?
    ```sql
@@ -266,15 +266,15 @@
   ```
   
 #### Result
-     |   segment1    |   demographic   |   totalsales     |    percentage   |
-     |:-------------:|:---------------:|:----------------:|:---------------:|
-     |   Unknown     |    Unknown      |    16067285533   |        41       |
-     |   Retirees    |    Families     |    6634686916    |        17       |
-     |   Retirees    |    Couples      |    6370580014    |        16       |
-     |  Middle Aged  |    Families     |    4354091554    |        11       |
-     |  Young Adults |    Couples      |    2602922797    |         7       |
-     |  Middle Aged  |    Couples      |    1854160330    |         5       |
-     |  Young Adults |    Families     |    1770889293    |         4       |
+  |   segment1    |   demographic   |   totalsales     |    percentage   |
+  |:-------------:|:---------------:|:----------------:|:---------------:|
+  |   Unknown     |    Unknown      |    16067285533   |        41       |
+  |   Retirees    |    Families     |    6634686916    |        17       |
+  |   Retirees    |    Couples      |    6370580014    |        16       |
+  |  Middle Aged  |    Families     |    4354091554    |        11       |
+  |  Young Adults |    Couples      |    2602922797    |         7       |
+  |  Middle Aged  |    Couples      |    1854160330    |         5       |
+  |  Young Adults |    Families     |    1770889293    |         4       |
      
 #### 9. Can we use the avg_transaction column to find the average transaction size for each year for Retail vs Shopify? If not - how would you calculate it instead?
   ```sql
@@ -288,14 +288,14 @@
   ```
 
 #### Result
-     | platform |  calendar_year  |       round      |
-     |:--------:|:---------------:|:----------------:|
-     |  Retail  |	  2018	    |	  42.41      |
-     | Shopify  |	  2018	    |	 187.80      |
-     |  Retail  |	  2019	    |	  41.47      |
-     | Shopify  |	  2019	    |	 177.07      |
-     | Shopify  |	  2020	    |	 174.40      |
-     |  Retail  |	  2020	    |	  40.14      |
+  | platform |  calendar_year  |       round      |
+  |:--------:|:---------------:|:----------------:|
+  |  Retail  |	  2018	    |	  42.41      |
+  | Shopify  |	  2018	    |	 187.80      |
+  |  Retail  |	  2019	    |	  41.47      |
+  | Shopify  |	  2019	    |	 177.07      |
+  | Shopify  |	  2020	    |	 174.40      |
+  |  Retail  |	  2020	    |	  40.14      |
 
 ### C. Before & After Analysis
 #### 1. What is the total sales for the 4 weeks before & after 2020-06-15? What is the growth/reduction rate in actual value & percentage of sales?
@@ -328,9 +328,9 @@
   ```
 
 #### Result
-     |     sales_diff    |      percentage     |
-     |:-----------------:|:-------------------:|
-     |     -26884188     |        -1.15        | 
+  |     sales_diff    |      percentage     |
+  |:-----------------:|:-------------------:|
+  |     -26884188     |        -1.15        | 
      
 #### 2. What about the entire 12 weeks before and after?
   ```sql
@@ -362,9 +362,9 @@
   ```
   
 #### Result
-     |     sales_diff    |      percentage     |
-     |:-----------------:|:-------------------:|
-     |     -152325394     |        -2.14       |  
+  |     sales_diff    |      percentage     |
+  |:-----------------:|:-------------------:|
+  |     -152325394     |        -2.14       |  
      
 #### 3. How do the sale metrics for these 2 periods before and after compare with the previous years in 2018 and 2019?
   ```sql
@@ -399,11 +399,11 @@
   ```
 
 #### Result
-     | calendar_year |     sales_diff    |    percentage   |
-     |:--------------|:-----------------:|:---------------:|
-     |     2018      |     -104256193    |      -1.60      | 
-     |     2019      |     20740294      |       0.30      | 
-     |     2020      |     152325394     |       2.18      |
+  | calendar_year |     sales_diff    |    percentage   |
+  |:--------------|:-----------------:|:---------------:|
+  |     2018      |     -104256193    |      -1.60      | 
+  |     2019      |     20740294      |       0.30      | 
+  |     2020      |     152325394     |       2.18      |
 
 ### D. Bonus Question
 #### 1. Which areas of the business have the highest negative impact in sales metrics performance in 2020 for the 12 week before and after period?
@@ -439,14 +439,14 @@
   ```
   
 #### Result
-     |      region       |       totalsales      |       salesdiff     |       perchange     |
-     |:-----------------:|:---------------------:|:-------------------:|:-------------------:|
-     |      AFRICA       |       1700390294      |       -9146811      |         -0.54       |
-     |       ASIA        |       1583807621      |      -53436845      |         -3.26       |
-     |      CANADA       |       418264441       |       -8174013      |         -1.92       |
-     |      EUROPE       |       114038959       |        5152392      |          4.73       |
-     |      OCEANIA      |       2282795690      |      -71321100      |         -0.54       |
-     |   SOUTH AMERICA   |       208452033       |       -4584174      |         -3.03       |
-     |        USA        |       666198715       |      -10814843      |         -1.60       | 
+  |      region       |       totalsales      |       salesdiff     |       perchange     |
+  |:-----------------:|:---------------------:|:-------------------:|:-------------------:|
+  |      AFRICA       |       1700390294      |       -9146811      |         -0.54       |
+  |       ASIA        |       1583807621      |      -53436845      |         -3.26       |
+  |      CANADA       |       418264441       |       -8174013      |         -1.92       |
+  |      EUROPE       |       114038959       |        5152392      |          4.73       |
+  |      OCEANIA      |       2282795690      |      -71321100      |         -0.54       |
+  |   SOUTH AMERICA   |       208452033       |       -4584174      |         -3.03       |
+  |        USA        |       666198715       |      -10814843      |         -1.60       | 
      
     
